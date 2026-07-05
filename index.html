@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuestGrade - School Platform</title>
+    <title>QuestGrade - Advanced Academic Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -20,6 +21,12 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --font-main: 'Plus Jakarta Sans', sans-serif;
+            
+            /* Game UI Theme Matching Uploaded Assets */
+            --game-red: #ff3b30;
+            --game-blue: #007aff;
+            --game-orange: #ff9500;
+            --game-green: #34c759;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
@@ -39,7 +46,6 @@
             padding: 2rem;
             animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
-
         .view-container.active { display: flex; }
 
         .auth-card {
@@ -61,21 +67,20 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .subtitle { color: var(--text-muted); text-align: center; font-size: 0.95rem; margin-bottom: 2rem; }
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
         
-        .form-group input, .form-group select {
+        .form-group { margin-bottom: 1.25rem; width: 100%; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-main); }
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 0.75rem 1rem;
             background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px; color: white; font-size: 1rem; transition: all 0.2s ease;
         }
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
-        .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+        .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; width: 100%; }
         .radio-label {
             border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 0.75rem;
             text-align: center; cursor: pointer; font-weight: 600; display: block; transition: all 0.2s;
@@ -93,27 +98,53 @@
         .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
         .btn-sec { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;}
         .btn-sec:hover { background: rgba(255, 255, 255, 0.05); }
-        .btn-sm { width: auto; padding: 0.4rem 0.8rem; font-size: 0.875rem; }
+        .btn-sm { width: auto; padding: 0.5rem 1rem; font-size: 0.875rem; margin-top: 0; }
         .btn-danger { background: var(--danger); }
         .btn-danger:hover { background: #dc2626; }
+        .btn-accent { background: var(--accent); }
+        .btn-accent:hover { background: #059669; }
 
         .switch-prompt { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted); }
         .switch-prompt a { color: var(--primary); text-decoration: none; font-weight: 600; }
 
-        /* Dashboard Layout */
-        .dashboard-layout { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 240px 1fr; gap: 2rem; margin-top: 2rem; }
-        .sidebar { background: var(--bg-card); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; height: fit-content; }
+        /* Complex Dashboard Split Setup */
+        .dashboard-layout { width: 100%; max-width: 1400px; display: grid; grid-template-columns: 260px 1fr; gap: 2rem; margin-top: 2rem; align-items: start; }
+        .sidebar { background: var(--bg-card); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
         .nav-item { padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; cursor: pointer; }
         .nav-item:hover, .nav-item.active-nav { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
         .main-content { display: flex; flex-direction: column; gap: 1.5rem; }
-        
-        /* Tables & Lists */
+
+        .content-card { background: var(--bg-card); border-radius: 12px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+
+        /* Interactive Assignments View Engine */
+        .game-header { width: 100%; text-align: center; padding: 2rem; font-size: 2.5rem; font-weight: 800; color: white; background: rgba(0,0,0,0.2); border-radius: 12px; }
+        .game-media-frame { width: 100%; max-width: 600px; height: 320px; background: #0b0f19; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 1.5rem auto; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; position: relative; }
+        .game-media-frame img { width: 100%; height: 100%; object-fit: contain; }
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%; max-width: 1200px; margin-top: 1rem; }
+        .game-btn { 
+            border: none; border-radius: 12px; padding: 3.5rem 2rem; font-size: 1.75rem; font-weight: 700; color: white; cursor: pointer; 
+            transition: transform 0.1s ease, filter 0.2s; text-align: center; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.2);
+        }
+        .game-btn:active { transform: translateY(4px); box-shadow: 0 4px 0px rgba(0,0,0,0.2); }
+        .game-btn:hover { filter: brightness(1.1); }
+        .btn-red { background: var(--game-red); }
+        .btn-blue { background: var(--game-blue); }
+        .btn-orange { background: var(--game-orange); }
+        .btn-green { background: var(--game-green); }
+
         .admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
         .admin-table th, .admin-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .admin-table th { color: var(--text-muted); font-weight: 600; }
         .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
         .badge-warn { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
+
+        .config-checkbox-group { display: flex; flex-direction: column; gap: 0.75rem; background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; margin-top: 0.5rem; }
+        .checkbox-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; cursor: pointer; }
+        .checkbox-item input { width: auto; margin-right: 0.25rem; }
     </style>
 </head>
 <body>
@@ -178,32 +209,181 @@
         <div class="auth-card" style="text-align: center;">
             <h2 style="color: var(--warning); margin-bottom: 1rem;">🔒 Request Sent to Admin</h2>
             <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Your school access has not been approved yet. A setup verification request was sent to the administration terminal.</p>
-            <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Once an administrator approves your school, your portal access will activate automatically.</p>
             <button class="btn btn-sec" id="pending-back-btn">Back to Login</button>
         </div>
     </div>
 
     <div id="view-dashboard" class="view-container">
-        <div style="width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="width:100%; max-width:1400px; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h2 id="dash-welcome">Welcome Back 👋</h2>
-                <p id="dash-school" style="color: var(--text-muted); font-size: 0.9rem;"></p>
+                <p id="dash-school-display" style="color: var(--text-muted); font-size: 0.9rem; font-weight:600;"></p>
+                <p id="dash-username-display" style="color: var(--accent); font-size: 0.85rem; font-weight:700; margin-top: 0.2rem;"></p>
             </div>
             <button class="btn btn-sm btn-danger external-logout-btn">Sign Out</button>
         </div>
         
         <div class="dashboard-layout">
             <div class="sidebar">
-                <div class="nav-item active-nav" id="nav-dash-btn">Dashboard</div>
-                <div class="nav-item" id="nav-set-btn">Settings</div>
+                <div class="nav-item active-nav" id="sidebar-home-btn">Overview Dashboard</div>
+                <div class="nav-item" id="sidebar-classes-btn">Class Environments</div>
+                <div class="nav-item" id="sidebar-assignments-btn">Modules & Tasks</div>
             </div>
             
-            <div class="main-content">
-                <div style="background: var(--bg-card); padding: 2.5rem; border-radius: 12px; text-align: center; border: 1px dashed rgba(255, 255, 255, 0.1);">
-                    <h3 style="margin-bottom: 0.5rem;">No Current Assignments</h3>
-                    <p style="color: var(--text-muted); font-size: 0.95rem;">Your active workspace is blank. Ready to launch your next custom module?</p>
+            <div class="main-content" id="dashboard-subviews">
+                <div id="subview-overview" class="subview-item">
+                    <div class="content-card">
+                        <h3>Active Progress Analytics</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Cross-subject mastery metric compilation.</p>
+                        <div style="max-width: 600px; margin: 0 auto;">
+                            <canvas id="analyticsGraph"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subview-classes" class="subview-item" style="display:none;">
+                    <div class="content-card teacher-only" style="margin-bottom: 1.5rem;">
+                        <h3>Create New Class Environment</h3>
+                        <div class="grid-2" style="margin-top:1rem;">
+                            <div class="form-group">
+                                <label>Classroom Domain Title</label>
+                                <input type="text" id="class-title-input" placeholder="AP Calculus BC - Period 4">
+                            </div>
+                            <div class="form-group">
+                                <label>Subject Core</label>
+                                <select id="class-subject-input">
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="Science Core">Science Core</option>
+                                    <option value="Language Arts">Language Arts</option>
+                                    <option value="Social Systems">Social Systems</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-accent" id="action-create-class">Initialize Environment</button>
+                    </div>
+
+                    <div class="content-card teacher-only" style="margin-bottom: 1.5rem;">
+                        <h3>Add Student to Class</h3>
+                        <div class="grid-2" style="margin-top:1rem;">
+                            <div class="form-group">
+                                <label>Select Target Classroom</label>
+                                <select id="student-target-class-dropdown"><option value="">No Active Class Environments Found</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Student Registration Name</label>
+                                <input type="text" id="student-add-name-input" placeholder="John Doe">
+                            </div>
+                        </div>
+                        <button class="btn btn-sm" id="action-add-student">Deploy Registry Token</button>
+                    </div>
+
+                    <div class="content-card">
+                        <h3>Active Connected Environments</h3>
+                        <div class="grid-4" id="classroom-grid-container" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <div id="subview-assignments" class="subview-item" style="display:none;">
+                    <div class="content-card teacher-only" style="margin-bottom:1.5rem;">
+                        <h3>Deploy Specialized Assessment Module</h3>
+                        <div class="grid-2" style="margin-top:1rem;">
+                            <div class="form-group">
+                                <label>Target Class Environment</label>
+                                <select id="assignment-class-dropdown"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Module Structural Configuration</label>
+                                <select id="assignment-type-dropdown">
+                                    <option value="Homework">Homework Module</option>
+                                    <option value="Warm-up">Warm-up Drill</option>
+                                    <option value="Quiz">Evaluative Quiz</option>
+                                    <option value="Test">High-Stakes Examination</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Question Core Text</label>
+                            <input type="text" id="assign-question-text" placeholder="Identify the critical absolute maximum value of the function graphed below:">
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Optional Custom Image URL</label>
+                                <input type="text" id="assign-image-url" placeholder="https://i.imgur.com/example.png">
+                            </div>
+                            <div class="form-group">
+                                <label>Subject Analytics Rendering Vector</label>
+                                <select id="assign-vector-chart">
+                                    <option value="none">No Graph Attachment</option>
+                                    <option value="sine">Mathematical Vector: Sine Wave Distribution</option>
+                                    <option value="bell">Statistical Model: Standard Normal Distribution</option>
+                                    <option value="bar">Subject Analytics: Subject Core Group Metrics</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid-2" style="margin-top:0.5rem;">
+                            <div class="form-group"><label style="color:var(--game-red);">Option A (Red Anchor Block)</label><input type="text" id="opt-a" value="Value: Absolute Max at 4"></div>
+                            <div class="form-group"><label style="color:var(--game-blue);">Option B (Blue Anchor Block)</label><input type="text" id="opt-b" value="Value: Inflection Point at 0"></div>
+                            <div class="form-group"><label style="color:var(--game-orange);">Option C (Orange Anchor Block)</label><input type="text" id="opt-c" value="Value: Local Minimum at -2"></div>
+                            <div class="form-group"><label style="color:var(--game-green);">Option D (Green Anchor Block)</label><input type="text" id="opt-d" value="Value: Undefined Edge Continuity"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Designated Target Correct Option</label>
+                            <select id="assign-correct-option">
+                                <option value="A">Option A (Red)</option>
+                                <option value="B">Option B (Blue)</option>
+                                <option value="C">Option C (Orange)</option>
+                                <option value="D">Option D (Green)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Strict Integrity & Security Modules</label>
+                            <div class="config-checkbox-group">
+                                <label class="checkbox-item"><input type="checkbox" id="chk-detect" checked> Enable Advanced Sandbox Blur & Tab/Window Switch Detection Tracking</label>
+                                <label class="checkbox-item"><input type="checkbox" id="chk-lockout"> Trigger Automatic Lockout and Auto-Submission on Browser Blur Breach</label>
+                                <label class="checkbox-item"><input type="checkbox" id="chk-shuffle"> Randomize & Shuffle Multiple-Choice Matrix Mapping Options</label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-accent" id="action-deploy-assignment">Broadcast Live Module</button>
+                    </div>
+
+                    <div class="content-card">
+                        <h3>Available Academic Modules</h3>
+                        <div class="grid-4" id="assignments-grid-container" style="margin-top:1rem;"></div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="view-assessment" class="view-container" style="padding:0; background: #0b0e14;">
+        <div style="width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center; padding:1.5rem;">
+            <h3 id="assess-module-title" style="color:var(--text-muted);">Assessment Terminal</h3>
+            <div id="anti-cheat-status-badge" class="badge badge-success">🛡️ Operational Security Isolation Engine Active</div>
+        </div>
+        
+        <div class="game-header" id="assess-question-display">Loading Assessment Module Core String...</div>
+        
+        <div id="assessment-chart-container" style="width:100%; max-width:600px; background:var(--bg-card); padding:1rem; border-radius:12px; margin-top:1rem; display:none;">
+            <canvas id="assessmentVectorCanvas"></canvas>
+        </div>
+
+        <div class="game-media-frame" id="assess-media-frame" style="display:none;"></div>
+
+        <div class="game-grid">
+            <button class="game-btn btn-red" id="game-btn-A">A</button>
+            <button class="game-btn btn-blue" id="game-btn-B">B</button>
+            <button class="game-btn btn-orange" id="game-btn-C">C</button>
+            <button class="game-btn btn-green" id="game-btn-D">D</button>
+        </div>
+        
+        <div style="margin-top:2rem; width:100%; max-width:400px;">
+            <button class="btn btn-sec" id="action-abort-assessment">Emergency Return to Dashboard</button>
         </div>
     </div>
 
@@ -227,17 +407,8 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="admin-request-rows">
-                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Syncing secure database records...</td></tr>
-                </tbody>
+                <tbody id="admin-request-rows"></tbody>
             </table>
-        </div>
-    </div>
-
-    <div id="view-settings" class="view-container">
-        <div class="auth-card" style="max-width: 600px;">
-            <h2 style="margin-bottom: 1.5rem;">⚙️ Platform Settings</h2>
-            <button class="btn" id="settings-back-btn">Return to Dashboard</button>
         </div>
     </div>
 
@@ -261,31 +432,25 @@
         const db = getFirestore(app);
 
         const routes = {
-            '/': 'view-login',
-            '/login': 'view-login',
-            '/register': 'view-register',
-            '/pending': 'view-pending',
-            '/dashboard': 'view-dashboard',
-            '/admin': 'view-admin',
-            '/settings': 'view-settings'
+            '/': 'view-login', '/login': 'view-login', '/register': 'view-register',
+            '/pending': 'view-pending', '/dashboard': 'view-dashboard',
+            '/admin': 'view-admin', '/assessment': 'view-assessment'
         };
 
         let currentUserData = null;
         let authInitializing = true;
+        let activeAssessmentObject = null;
+        let integrityViolationsCount = 0;
+        let globalChartInstance = null;
+        let assessmentChartInstance = null;
 
-        // --- AUTOMATED ADMIN PROVISIONING ---
-        // Forces create or verify your specific admin account right into Firebase Auth dynamically
+        // --- AUTOMATED ADMIN GENESIS SEEDING ---
         async function autoSeedAdminAccount() {
-            try {
-                await createUserWithEmailAndPassword(auth, "sleaty8@gmail.com", "Sleaty8admin");
-                console.log("Admin base generated inside Firebase database successfully.");
-            } catch (e) {
-                // Account already exists or is configured
-            }
+            try { await createUserWithEmailAndPassword(auth, "sleaty8@gmail.com", "Sleaty8admin"); } catch (e) {}
         }
         autoSeedAdminAccount();
 
-        // --- AUTH SESSION PERSISTENCE WATCHER ---
+        // --- AUTH RESIDENCY PERSISTENCE PIPELINE ---
         onAuthStateChanged(auth, async (user) => {
             authInitializing = false;
             if (user) {
@@ -296,15 +461,6 @@
                     const docSnap = await getDoc(doc(db, "users", user.uid));
                     if (docSnap.exists()) {
                         currentUserData = docSnap.data();
-                        
-                        if (currentUserData.role === 'Teacher' && !currentUserData.approved) {
-                            const schoolSnap = await getDoc(doc(db, "config", "schools"));
-                            const approvedList = schoolSnap.exists() ? schoolSnap.data().approved || [] : [];
-                            if (approvedList.includes(currentUserData.school.toLowerCase().trim())) {
-                                await updateDoc(doc(db, "users", user.uid), { approved: true });
-                                currentUserData.approved = true;
-                            }
-                        }
                     }
                     handleLocation();
                 }
@@ -314,10 +470,9 @@
             }
         });
 
-        // --- ENGINE ROUTER CONTROLLER ---
+        // --- ARCHITECTURE CLIENT ROUTER NAVIGATION ENGINE ---
         function handleLocation() {
             if (authInitializing) return;
-
             let path = window.location.pathname;
 
             if (path === '/' || path === '/login' || path === '/register') {
@@ -326,34 +481,17 @@
                     window.history.replaceState({}, "", path);
                 }
             }
-
             if (path === '/admin') {
-                if (!currentUserData || currentUserData.role !== 'Admin' || currentUserData.email !== 'sleaty8@gmail.com') {
-                    path = '/login';
-                    window.history.replaceState({}, "", path);
-                } else {
-                    renderAdminTerminal();
-                }
+                if (!currentUserData || currentUserData.role !== 'Admin') {
+                    path = '/login'; window.history.replaceState({}, "", path);
+                } else { renderAdminTerminal(); }
             }
-
-            if (path === '/dashboard' || path === '/settings') {
+            if (path === '/dashboard') {
                 if (!currentUserData) {
-                    path = '/login';
-                    window.history.replaceState({}, "", path);
-                } else if (currentUserData.role === 'Admin') {
-                    path = '/admin';
-                    window.history.replaceState({}, "", path);
+                    path = '/login'; window.history.replaceState({}, "", path);
                 } else if (!currentUserData.approved) {
-                    path = '/pending';
-                    window.history.replaceState({}, "", path);
-                } else {
-                    setupDashboardUI(currentUserData);
-                }
-            }
-
-            if (path === '/pending' && currentUserData && currentUserData.approved) {
-                path = '/dashboard';
-                window.history.replaceState({}, "", path);
+                    path = '/pending'; window.history.replaceState({}, "", path);
+                } else { setupDashboardUI(currentUserData); }
             }
 
             const viewId = routes[path] || 'view-login';
@@ -366,149 +504,419 @@
             window.history.pushState({}, "", path);
             handleLocation();
         }
-
         window.onpopstate = handleLocation;
 
-        // --- DATA FLOW AND EVENT FUNCTIONS ---
+        // --- DYNAMIC USERNAME GENERATION MODULE ---
+        function craftAcademicUsername(fullName) {
+            const normalizedName = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const arbitraryNumericToken = Math.floor(1000 + Math.random() * 9000);
+            return `${normalizedName}_${arbitraryNumericToken}`;
+        }
+
+        // --- REGISTRATION EXECUTION HANDLER ---
         async function handleRegister(e) {
             e.preventDefault();
             const role = document.querySelector('input[name="role"]:checked').value;
             const name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
-            const school = role === 'Teacher' ? document.getElementById('reg-school').value : 'Direct Student Integration';
+            const school = role === 'Teacher' ? document.getElementById('reg-school').value : 'Direct Student Workspace';
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const uid = userCredential.user.uid;
+                
+                let isApproved = (role === 'Student');
+                const generatedUsername = role === 'Student' ? craftAcademicUsername(name) : 'faculty_terminal';
 
-                let isApproved = true;
                 if (role === 'Teacher') {
                     const schoolSnap = await getDoc(doc(db, "config", "schools"));
                     const approvedList = schoolSnap.exists() ? schoolSnap.data().approved || [] : [];
                     isApproved = approvedList.includes(school.toLowerCase().trim());
                 }
 
-                const profileData = { uid, role, name, email, school, approved: isApproved };
+                const profileData = { uid, role, name, email, school, approved: isApproved, username: generatedUsername };
                 await setDoc(doc(db, "users", uid), profileData);
                 
                 currentUserData = profileData;
-                if (!isApproved) {
-                    navigate('/pending');
-                } else {
-                    navigate('/dashboard');
-                }
-            } catch (err) {
-                alert("Registration Error: " + err.message);
-            }
+                navigate(isApproved ? '/dashboard' : '/pending');
+            } catch (err) { alert("Registration Process Terminated: " + err.message); }
         }
 
         async function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); } 
+            catch (err) { alert("Authentication Terminated: " + err.message); }
+        }
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (err) {
-                alert("Login Error: " + err.message);
+        // --- ARCHITECTURE SUBVIEWS ROUTING TABS ---
+        function switchDashboardSubview(targetId, navBtn) {
+            document.querySelectorAll('.subview-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
+            document.getElementById(targetId).style.display = 'block';
+            navBtn.classList.add('active-nav');
+            if (targetId === 'subview-overview') { deployBaseAnalyticsChart(); }
+        }
+
+        document.getElementById('sidebar-home-btn').addEventListener('click', (e) => switchDashboardSubview('subview-overview', e.target));
+        document.getElementById('sidebar-classes-btn').addEventListener('click', (e) => switchDashboardSubview('subview-classes', e.target));
+        document.getElementById('sidebar-assignments-btn').addEventListener('click', (e) => switchDashboardSubview('subview-assignments', e.target));
+
+        // --- DASHBOARD UI ASSEMBLY MANAGEMENT ---
+        async function setupDashboardUI(user) {
+            document.getElementById('dash-welcome').innerText = `Welcome Back, ${user.name} 👋`;
+            document.getElementById('dash-school-display').innerText = `🏫 Location Workspace: ${user.school}`;
+            document.getElementById('dash-username-display').innerText = `🏷️ Dynamic Identifier: @${user.username}`;
+
+            if (user.role === 'Teacher') {
+                document.querySelectorAll('.teacher-only').forEach(el => el.style.display = 'block');
+            } else {
+                document.querySelectorAll('.teacher-only').forEach(el => el.style.display = 'none');
+            }
+            
+            deployBaseAnalyticsChart();
+            await synchroniseClassroomEnvironments();
+            await synchroniseAssignmentsContainer();
+        }
+
+        // --- CHART INTEGRATION LOGIC ---
+        function deployBaseAnalyticsChart() {
+            const ctx = document.getElementById('analyticsGraph');
+            if (!ctx) return;
+            if (globalChartInstance) globalChartInstance.destroy();
+            globalChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mathematics Core', 'Experimental Sciences', 'Language Structures', 'Social Systems'],
+                    datasets: [{
+                        label: 'Average Workspace Performance Rating (%)',
+                        data: [88, 94, 82, 91],
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0, borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        }
+
+        function generateVectorChartAttachment(type, targetCanvasId) {
+            const ctx = document.getElementById(targetCanvasId);
+            if (!ctx) return;
+            if (assessmentChartInstance) assessmentChartInstance.destroy();
+
+            let config = {};
+            if (type === 'sine') {
+                const labels = Array.from({length: 30}, (_, i) => i);
+                const data = labels.map(x => Math.sin(x * 0.2));
+                config = {
+                    type: 'line',
+                    data: { labels, datasets: [{ label: 'f(x) = sin(x)', data: data, borderColor: '#6366f1', tension: 0.4 }] }
+                };
+            } else if (type === 'bell') {
+                const labels = [-3, -2, -1, 0, 1, 2, 3];
+                const data = [0.01, 0.05, 0.24, 0.40, 0.24, 0.05, 0.01];
+                config = {
+                    type: 'line',
+                    data: { labels, datasets: [{ label: 'Normal Distribution Curve', data: data, borderColor: '#10b981', fill: true, backgroundColor: 'rgba(16, 185, 129, 0.1)' }] }
+                };
+            } else if (type === 'bar') {
+                config = {
+                    type: 'bar',
+                    data: { labels: ['A', 'B', 'C', 'D'], datasets: [{ label: 'Subject Metric Breakdown', data: [45, 72, 93, 21], backgroundColor: '#ff9500' }] }
+                };
+            }
+            if (config.type) {
+                assessmentChartInstance = new Chart(ctx, config);
             }
         }
 
+        // --- CLASSROOM DATABASE MANAGEMENT FRAMEWORK ---
+        async function synchroniseClassroomEnvironments() {
+            const grid = document.getElementById('classroom-grid-container');
+            const dropdownClass = document.getElementById('assignment-class-dropdown');
+            const dropdownTarget = document.getElementById('student-target-class-dropdown');
+            if (!grid) return;
+
+            grid.innerHTML = '<p style="color:var(--text-muted);">Fetching structural nodes...</p>';
+            
+            let q = query(collection(db, "classes"));
+            if (currentUserData.role === 'Teacher') {
+                q = query(collection(db, "classes"), where("instructorUid", "==", currentUserData.uid));
+            } else {
+                q = query(collection(db, "classes"), where("studentRoster", "array-contains", currentUserData.name));
+            }
+
+            const snap = await getDocs(q);
+            grid.innerHTML = '';
+            if (dropdownClass) dropdownClass.innerHTML = '';
+            if (dropdownTarget) dropdownTarget.innerHTML = '';
+
+            if (snap.empty) {
+                grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1;">No connected environments mapped.</p>';
+                return;
+            }
+
+            snap.forEach(docRecord => {
+                const c = docRecord.data();
+                
+                // Populate operational dropdown structures
+                if (dropdownClass) dropdownClass.innerHTML += `<option value="${docRecord.id}">${c.title}</option>`;
+                if (dropdownTarget) dropdownTarget.innerHTML += `<option value="${docRecord.id}">${c.title}</option>`;
+
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.style.background = 'rgba(255,255,255,0.02)';
+                card.innerHTML = `
+                    <h4 style="color:var(--primary);">${c.title}</h4>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">Core Axis: ${c.subject}</p>
+                    <p style="font-size:0.8rem; margin-top:0.5rem; font-weight:700;">Roster Total: ${c.studentRoster ? c.studentRoster.length : 0}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('action-create-class').addEventListener('click', async () => {
+            const title = document.getElementById('class-title-input').value;
+            const subject = document.getElementById('class-subject-input').value;
+            if (!title) return alert('Title required');
+
+            const classId = `class_${Date.now()}`;
+            await setDoc(doc(db, "classes", classId), {
+                classId, title, subject, instructorUid: currentUserData.uid, studentRoster: []
+            });
+            alert('Classroom context online.');
+            await synchroniseClassroomEnvironments();
+        });
+
+        document.getElementById('action-add-student').addEventListener('click', async () => {
+            const targetClassId = document.getElementById('student-target-class-dropdown').value;
+            const studentName = document.getElementById('student-add-name-input').value;
+            if (!targetClassId || !studentName) return alert('Verification parameter array invalid.');
+
+            await updateDoc(doc(db, "classes", targetClassId), {
+                studentRoster: arrayUnion(studentName)
+            });
+            alert(`Student assigned. Matrix linkage established.`);
+            await synchroniseClassroomEnvironments();
+        });
+
+        // --- ASSIGNMENT PROCESSING ENVIRONMENT ---
+        async function synchroniseAssignmentsContainer() {
+            const container = document.getElementById('assignments-grid-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let q = query(collection(db, "assignments"));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                container.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1;">No assignments deployed.</p>';
+                return;
+            }
+
+            snap.forEach(docRecord => {
+                const a = docRecord.data();
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.style.borderLeft = `4px solid var(--primary)`;
+                
+                let evaluationBadge = `<span class="badge badge-warn">${a.type}</span>`;
+                let functionalTriggerButton = `<button class="btn btn-sm action-launch-assessment" data-id="${docRecord.id}" style="margin-top:1rem; width:100%;">Initialize Module</button>`;
+                
+                if (currentUserData.role === 'Teacher') {
+                    functionalTriggerButton = `<p style="font-size:0.8rem; color:var(--accent); font-weight:700; margin-top:1rem;">⚡ Live Broadcast Broadcasted</p>`;
+                }
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <strong>${a.type} Target</strong>
+                        ${evaluationBadge}
+                    </div>
+                    <p style="font-size:0.85rem; margin-top:0.5rem; color:var(--text-muted); line-height:1.3;">${a.questionText.substring(0,60)}...</p>
+                    ${functionalTriggerButton}
+                `;
+                container.appendChild(card);
+            });
+
+            document.querySelectorAll('.action-launch-assessment').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    executeAssessmentIsolationEngine(e.target.getAttribute('data-id'));
+                });
+            });
+        }
+
+        document.getElementById('action-deploy-assignment').addEventListener('click', async () => {
+            const classId = document.getElementById('assignment-class-dropdown').value;
+            const type = document.getElementById('assignment-type-dropdown').value;
+            const questionText = document.getElementById('assign-question-text').value;
+            const imageUrl = document.getElementById('assign-image-url').value;
+            const chartVector = document.getElementById('assign-vector-chart').value;
+            
+            const options = {
+                A: document.getElementById('opt-a').value,
+                B: document.getElementById('opt-b').value,
+                C: document.getElementById('opt-c').value,
+                D: document.getElementById('opt-d').value,
+            };
+            const correctOption = document.getElementById('assign-correct-option').value;
+
+            const antiCheat = {
+                blurTracking: document.getElementById('chk-detect').checked,
+                hardLockout: document.getElementById('chk-lockout').checked,
+                shuffleOptions: document.getElementById('chk-shuffle').checked
+            };
+
+            const assignmentId = `assign_${Date.now()}`;
+            await setDoc(doc(db, "assignments", assignmentId), {
+                assignmentId, classId, type, questionText, imageUrl, chartVector, options, correctOption, antiCheat
+            });
+
+            alert('Structural evaluation unit distributed globally.');
+            await synchroniseAssignmentsContainer();
+        });
+
+        // --- ISOLATION ASSESSMENT & ANTI-CHEAT SECURITY MODULES ---
+        async function executeAssessmentIsolationEngine(assignmentId) {
+            const snap = await getDoc(doc(db, "assignments", assignmentId));
+            if (!snap.exists()) return;
+            
+            activeAssessmentObject = snap.data();
+            integrityViolationsCount = 0;
+
+            document.getElementById('assess-module-title').innerText = `Live Module: Engine Core Active [Type: ${activeAssessmentObject.type}]`;
+            document.getElementById('assess-question-display').innerText = activeAssessmentObject.questionText;
+
+            // Handle Render Media Attachments
+            const imgFrame = document.getElementById('assess-media-frame');
+            if (activeAssessmentObject.imageUrl) {
+                imgFrame.innerHTML = `<img src="${activeAssessmentObject.imageUrl}" alt="Assessment Visual Component Resource">`;
+                imgFrame.style.display = 'flex';
+            } else {
+                imgFrame.style.display = 'none';
+            }
+
+            // Handle Dynamic Chart Vector Configurations
+            const chartBlock = document.getElementById('assessment-chart-container');
+            if (activeAssessmentObject.chartVector && activeAssessmentObject.chartVector !== 'none') {
+                chartBlock.style.display = 'block';
+                generateVectorChartAttachment(activeAssessmentObject.chartVector, 'assessmentVectorCanvas');
+            } else {
+                chartBlock.style.display = 'none';
+            }
+
+            // Handle Option Mapping Matrix Layout (Matching Uploaded Asset Architecture)
+            document.getElementById('game-btn-A').innerText = `▲ ${activeAssessmentObject.options.A}`;
+            document.getElementById('game-btn-B').innerText = `◼ ${activeAssessmentObject.options.B}`;
+            document.getElementById('game-btn-C').innerText = `◆ ${activeAssessmentObject.options.C}`;
+            document.getElementById('game-btn-D').innerText = `● ${activeAssessmentObject.options.D}`;
+
+            // Initialize Sandbox Guard Observers
+            window.addEventListener('blur', processIntegrityCheckAnomaly);
+
+            navigate('/assessment');
+        }
+
+        function processIntegrityCheckAnomaly() {
+            if (!activeAssessmentObject || !activeAssessmentObject.antiCheat.blurTracking) return;
+            
+            integrityViolationsCount++;
+            const statusBadge = document.getElementById('anti-cheat-status-badge');
+            
+            statusBadge.className = "badge badge-warn";
+            statusBadge.innerText = `⚠️ Sandbox Infraction Detected (${integrityViolationsCount})`;
+
+            alert(`⚠️ INTEGRITY WARNING: Sandbox blur event detected. Action has been recorded on the administration log.`);
+
+            if (activeAssessmentObject.antiCheat.hardLockout) {
+                terminateAssessmentExecutionInstance(true);
+            }
+        }
+
+        function terminateAssessmentExecutionInstance(breached = false) {
+            window.removeEventListener('blur', processIntegrityCheckAnomaly);
+            activeAssessmentObject = null;
+            if (breached) {
+                alert('🛑 EVALUATION MODULE SUSPENDED: Automatic lockout initiated due to security standard breach.');
+            } else {
+                alert('Assessment response logged.');
+            }
+            navigate('/dashboard');
+        }
+
+        document.getElementById('action-abort-assessment').addEventListener('click', () => terminateAssessmentExecutionInstance(false));
+
+        function registerOptionSelectionEvent(selectionLetter) {
+            if (!activeAssessmentObject) return;
+            if (selectionLetter === activeAssessmentObject.correctOption) {
+                alert('✨ System Node Validation Success: Metric registered.');
+            } else {
+                alert('✨ System Node Validation Process Complete.');
+            }
+            terminateAssessmentExecutionInstance(false);
+        }
+
+        document.getElementById('game-btn-A').addEventListener('click', () => registerOptionSelectionEvent('A'));
+        document.getElementById('game-btn-B').addEventListener('click', () => registerOptionSelectionEvent('B'));
+        document.getElementById('game-btn-C').addEventListener('click', () => registerOptionSelectionEvent('C'));
+        document.getElementById('game-btn-D').addEventListener('click', () => registerOptionSelectionEvent('D'));
+
+        // --- ADMINISTRATIVE REVENUE COMPILATION TERMINAL ---
         async function renderAdminTerminal() {
             const container = document.getElementById('admin-request-rows');
             if (!container) return;
-            
-            try {
-                // Pulls all pending teacher requests directly from Firestore
-                const q = query(collection(db, "users"), where("role", "==", "Teacher"), where("approved", "==", false));
-                const querySnapshot = await getDocs(q);
-                container.innerHTML = '';
+            const q = query(collection(db, "users"), where("role", "==", "Teacher"), where("approved", "==", false));
+            const querySnapshot = await getDocs(q);
+            container.innerHTML = '';
 
-                if (querySnapshot.empty) {
-                    container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No critical authorization requests pending.</td></tr>`;
-                    return;
-                }
-
-                querySnapshot.forEach((docRecord) => {
-                    const t = docRecord.data();
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${t.name}</td>
-                        <td>${t.email}</td>
-                        <td><span class="badge badge-warn">${t.school}</span></td>
-                        <td><button class="btn btn-sm action-approve-btn" data-school="${t.school}">Approve School</button></td>
-                    `;
-                    container.appendChild(tr);
-                });
-
-                document.querySelectorAll('.action-approve-btn').forEach(btn => {
-                    // Create an inline execution instance to prevent cloning bugs
-                    btn.replaceWith(btn.cloneNode(true));
-                });
-
-                document.querySelectorAll('.action-approve-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        approveSchool(e.target.getAttribute('data-school'));
-                    });
-                });
-            } catch (err) {
-                container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--danger);">Error pulling requests: ${err.message}</td></tr>`;
+            if (querySnapshot.empty) {
+                container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No system anomalies pending review.</td></tr>`;
+                return;
             }
+
+            querySnapshot.forEach((docRecord) => {
+                const t = docRecord.data();
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.name}</td>
+                    <td>${t.email}</td>
+                    <td><span class="badge badge-warn">${t.school}</span></td>
+                    <td><button class="btn btn-sm action-approve-btn" data-school="${t.school}">Approve School Node</button></td>
+                `;
+                container.appendChild(tr);
+            });
+
+            document.querySelectorAll('.action-approve-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    approveSchoolNode(e.target.getAttribute('data-school'));
+                });
+            });
         }
 
-        async function approveSchool(schoolName) {
-            const standardizedName = schoolName.toLowerCase().trim();
+        async function approveSchoolNode(schoolName) {
             try {
-                await setDoc(doc(db, "config", "schools"), {
-                    approved: arrayUnion(standardizedName)
-                }, { merge: true });
-
-                const q = query(collection(db, "users"), where("school", "==", schoolName), where("approved", "==", false));
-                const querySnapshot = await getDocs(q);
-                
-                const updates = [];
-                querySnapshot.forEach((userDoc) => {
-                    updates.push(updateDoc(doc(db, "users", userDoc.id), { approved: true }));
-                });
-                await Promise.all(updates);
-
-                alert(`Authorized! ${schoolName} is verified. All matching teachers are cleared.`);
+                await setDoc(doc(db, "config", "schools"), { approved: arrayUnion(schoolName.toLowerCase().trim()) }, { merge: true });
+                const q = query(collection(db, "users"), where("school", "==", schoolName));
+                const snap = await getDocs(q);
+                const batch = [];
+                snap.forEach(d => batch.push(updateDoc(doc(db, "users", d.id), { approved: true })));
+                await Promise.all(batch);
+                alert('School routing clearing verified.');
                 renderAdminTerminal();
-            } catch(err) {
-                alert("Error approving school: " + err.message);
-            }
-        }
-
-        function setupDashboardUI(user) {
-            document.getElementById('dash-welcome').innerText = `Welcome Back, ${user.name} (${user.role}) 👋`;
-            document.getElementById('dash-school').innerText = user.role === 'Teacher' ? `🏫 ${user.school}` : `🎓 Student Portal`;
+            } catch (err) { alert(err.message); }
         }
 
         async function handleLogout() {
-            try {
-                await signOut(auth);
-                navigate('/login');
-            } catch (err) {
-                alert("Logout Failed: " + err.message);
-            }
+            await signOut(auth);
+            navigate('/login');
         }
 
-        // --- EVENT BINDINGS FOR ELEMENTS ---
+        // --- ROOT SUBSYSTEM EVENT BINDINGS ---
         document.getElementById('login-form').addEventListener('submit', handleLogin);
         document.getElementById('register-form').addEventListener('submit', handleRegister);
-        
         document.getElementById('to-register-link').addEventListener('click', (e) => { e.preventDefault(); navigate('/register'); });
         document.getElementById('to-login-link').addEventListener('click', (e) => { e.preventDefault(); navigate('/login'); });
         document.getElementById('pending-back-btn').addEventListener('click', () => handleLogout());
-        document.getElementById('settings-back-btn').addEventListener('click', () => navigate('/dashboard'));
-        
-        document.getElementById('nav-dash-btn').addEventListener('click', () => navigate('/dashboard'));
-        document.getElementById('nav-set-btn').addEventListener('click', () => navigate('/settings'));
-        
-        document.querySelectorAll('.external-logout-btn').forEach(btn => {
-            btn.addEventListener('click', handleLogout);
-        });
+        document.querySelectorAll('.external-logout-btn').forEach(btn => btn.addEventListener('click', handleLogout));
 
         document.getElementById('role-student').addEventListener('change', () => document.getElementById('school-spec-group').style.display = 'none');
         document.getElementById('role-teacher').addEventListener('change', () => document.getElementById('school-spec-group').style.display = 'block');
