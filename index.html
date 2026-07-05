@@ -118,12 +118,11 @@
 </head>
 <body>
 
-    <!-- LOGIN VIEW -->
     <div id="view-login" class="view-container">
         <div class="auth-card">
             <h1 class="brand-title">QuestGrade</h1>
             <p class="subtitle">Log in to your school workspace</p>
-            <form onsubmit="handleLogin(event)">
+            <form id="login-form">
                 <div class="form-group">
                     <label>School Email Address</label>
                     <input type="email" id="login-email" required placeholder="you@school.edu">
@@ -134,23 +133,22 @@
                 </div>
                 <button type="submit" class="btn">Sign In</button>
             </form>
-            <p class="switch-prompt">Need a portal? <a href="/register" onclick="navigate(event, '/register')">Register here</a></p>
+            <p class="switch-prompt">Need a portal? <a href="/register" id="to-register-link">Register here</a></p>
         </div>
     </div>
 
-    <!-- REGISTER VIEW -->
     <div id="view-register" class="view-container">
         <div class="auth-card">
             <h1 class="brand-title">QuestGrade</h1>
             <p class="subtitle">Create your academic account</p>
-            <form onsubmit="handleRegister(event)">
+            <form id="register-form">
                 <div class="radio-group">
                     <div>
-                        <input type="radio" id="role-student" name="role" value="Student" checked onchange="toggleSchoolField()">
+                        <input type="radio" id="role-student" name="role" value="Student" checked>
                         <label for="role-student" class="radio-label">Student</label>
                     </div>
                     <div>
-                        <input type="radio" id="role-teacher" name="role" value="Teacher" onchange="toggleSchoolField()">
+                        <input type="radio" id="role-teacher" name="role" value="Teacher">
                         <label for="role-teacher" class="radio-label">Teacher</label>
                     </div>
                 </div>
@@ -172,34 +170,32 @@
                 </div>
                 <button type="submit" class="btn">Register Account</button>
             </form>
-            <p class="switch-prompt">Already integrated? <a href="/login" onclick="navigate(event, '/login')">Sign In</a></p>
+            <p class="switch-prompt">Already integrated? <a href="/login" id="to-login-link">Sign In</a></p>
         </div>
     </div>
 
-    <!-- PENDING APPROVAL NOTICE VIEW -->
     <div id="view-pending" class="view-container">
         <div class="auth-card" style="text-align: center;">
             <h2 style="color: var(--warning); margin-bottom: 1rem;">🔒 Request Sent to Admin</h2>
             <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Your school access has not been approved yet. A setup verification request was sent to the administration terminal.</p>
             <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Once an administrator approves your school, your portal access will activate automatically.</p>
-            <button class="btn btn-sec" onclick="navigate(null, '/login')">Back to Login</button>
+            <button class="btn btn-sec" id="pending-back-btn">Back to Login</button>
         </div>
     </div>
 
-    <!-- MAIN INTERFACE DASHBOARD (TEACHER/STUDENT) -->
     <div id="view-dashboard" class="view-container">
         <div style="width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h2 id="dash-welcome">Welcome Back 👋</h2>
                 <p id="dash-school" style="color: var(--text-muted); font-size: 0.9rem;"></p>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="logout()">Sign Out</button>
+            <button class="btn btn-sm btn-danger external-logout-btn">Sign Out</button>
         </div>
         
         <div class="dashboard-layout">
             <div class="sidebar">
-                <div class="nav-item active-nav" onclick="navigate(null, '/dashboard')">Dashboard</div>
-                <div class="nav-item" onclick="navigate(null, '/settings')">Settings</div>
+                <div class="nav-item active-nav" id="nav-dash-btn">Dashboard</div>
+                <div class="nav-item" id="nav-set-btn">Settings</div>
             </div>
             
             <div class="main-content">
@@ -211,14 +207,13 @@
         </div>
     </div>
 
-    <!-- ADMINISTRATIVE TERMINAL VIEW -->
     <div id="view-admin" class="view-container">
         <div style="width:100%; max-width:1000px; display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
             <div>
                 <h2>🛡️ Global Admin Terminal</h2>
                 <p style="color: var(--text-muted);">Sleaty8 Control Center</p>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="logout()">Logout Admin</button>
+            <button class="btn btn-sm btn-danger external-logout-btn">Logout Admin</button>
         </div>
 
         <div style="background: var(--bg-card); width: 100%; max-width: 1000px; border-radius: 12px; padding: 1.5rem;">
@@ -233,28 +228,39 @@
                     </tr>
                 </thead>
                 <tbody id="admin-request-rows">
-                    <!-- Dynamic Rows Insertion -->
+                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Syncing secure database records...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- SETTINGS VIEW -->
     <div id="view-settings" class="view-container">
         <div class="auth-card" style="max-width: 600px;">
             <h2 style="margin-bottom: 1.5rem;">⚙️ Platform Settings</h2>
-            <button class="btn" onclick="navigate(null, '/dashboard')">Return to Dashboard</button>
+            <button class="btn" id="settings-back-btn">Return to Dashboard</button>
         </div>
     </div>
 
-    <script>
-        // Set up Local Storage keys
-        if(!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify([]));
-        }
-        if(!localStorage.getItem('approvedSchools')) {
-            localStorage.setItem('approvedSchools', JSON.stringify([]));
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Your Exact Firebase Web App Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC61lZSizzXl4pFiCWFfnpLufvmzJWUICY",
+            authDomain: "studysnap-8f5d6.firebaseapp.com",
+            projectId: "studysnap-8f5d6",
+            storageBucket: "studysnap-8f5d6.firebasestorage.app",
+            messagingSenderId: "747225004309",
+            appId: "1:747225004309:web:1983da884193d8941b911c",
+            measurementId: "G-Y6NFH4Y7HE"
+        };
+
+        // Init Core Services
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         const routes = {
             '/': 'view-login',
@@ -266,26 +272,99 @@
             '/settings': 'view-settings'
         };
 
-        // Pull active user session directly from localStorage memory
-        function getCurrentUser() {
-            const userStr = localStorage.getItem('questgrade_session');
-            return userStr ? JSON.parse(userStr) : null;
-        }
+        let currentUserData = null;
+        let authInitializing = true;
 
-        function setCurrentUser(userObj) {
-            if (userObj) {
-                localStorage.setItem('questgrade_session', JSON.stringify(userObj));
+        // --- AUTH SESSION PERSISTENCE WATCHER ---
+        onAuthStateChanged(auth, async (user) => {
+            authInitializing = false;
+            if (user) {
+                // Check if admin override logged in
+                if (user.email === 'sleaty8@gmail.com') {
+                    currentUserData = { role: 'Admin', name: 'Sleaty8 Admin', email: 'sleaty8@gmail.com' };
+                    handleLocation();
+                } else {
+                    // Pull profile classifications from Firestore
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) {
+                        currentUserData = docSnap.data();
+                        
+                        // Check if their school status was approved since last visit
+                        if (currentUserData.role === 'Teacher' && !currentUserData.approved) {
+                            const schoolSnap = await getDoc(doc(db, "config", "schools"));
+                            const approvedList = schoolSnap.exists() ? schoolSnap.data().approved || [] : [];
+                            if (approvedList.includes(currentUserData.school.toLowerCase().trim())) {
+                                await updateDoc(doc(db, "users", user.uid), { approved: true });
+                                currentUserData.approved = true;
+                            }
+                        }
+                    }
+                    handleLocation();
+                }
             } else {
-                localStorage.removeItem('questgrade_session');
+                currentUserData = null;
+                handleLocation();
             }
+        });
+
+        // --- ENGINE ROUTER CONTROLLER ---
+        function handleLocation() {
+            if (authInitializing) return;
+
+            let path = window.location.pathname;
+
+            // Route block verification steps
+            if (path === '/' || path === '/login' || path === '/register') {
+                if (currentUserData) {
+                    path = currentUserData.role === 'Admin' ? '/admin' : (currentUserData.approved ? '/dashboard' : '/pending');
+                    window.history.replaceState({}, "", path);
+                }
+            }
+
+            if (path === '/admin') {
+                if (!currentUserData || currentUserData.role !== 'Admin' || currentUserData.email !== 'sleaty8@gmail.com') {
+                    path = '/login';
+                    window.history.replaceState({}, "", path);
+                } else {
+                    renderAdminTerminal();
+                }
+            }
+
+            if (path === '/dashboard' || path === '/settings') {
+                if (!currentUserData) {
+                    path = '/login';
+                    window.history.replaceState({}, "", path);
+                } else if (currentUserData.role === 'Admin') {
+                    path = '/admin';
+                    window.history.replaceState({}, "", path);
+                } else if (!currentUserData.approved) {
+                    path = '/pending';
+                    window.history.replaceState({}, "", path);
+                } else {
+                    setupDashboardUI(currentUserData);
+                }
+            }
+
+            if (path === '/pending' && currentUserData && currentUserData.approved) {
+                path = '/dashboard';
+                window.history.replaceState({}, "", path);
+            }
+
+            const viewId = routes[path] || 'view-login';
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            const activeView = document.getElementById(viewId);
+            if (activeView) activeView.classList.add('active');
         }
 
-        function toggleSchoolField() {
-            const isTeacher = document.getElementById('role-teacher').checked;
-            document.getElementById('school-spec-group').style.display = isTeacher ? 'block' : 'none';
+        function navigate(path) {
+            window.history.pushState({}, "", path);
+            handleLocation();
         }
 
-        function handleRegister(e) {
+        window.onpopstate = handleLocation;
+
+        // --- DATA FLOW AND EVENT FUNCTIONS ---
+        async function handleRegister(e) {
             e.preventDefault();
             const role = document.querySelector('input[name="role"]:checked').value;
             const name = document.getElementById('reg-name').value;
@@ -293,61 +372,104 @@
             const password = document.getElementById('reg-password').value;
             const school = role === 'Teacher' ? document.getElementById('reg-school').value : 'Direct Student Integration';
 
-            let users = JSON.parse(localStorage.getItem('users'));
-            if(users.find(u => u.email === email)) {
-                alert("This email portal is already registered.");
-                return;
-            }
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
 
-            let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
-            let isApproved = (role === 'Student' || approvedSchools.includes(school.toLowerCase().trim()));
+                let isApproved = true;
+                if (role === 'Teacher') {
+                    const schoolSnap = await getDoc(doc(db, "config", "schools"));
+                    const approvedList = schoolSnap.exists() ? schoolSnap.data().approved || [] : [];
+                    isApproved = approvedList.includes(school.toLowerCase().trim());
+                }
 
-            const newUser = { role, name, email, password, school, approved: isApproved };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-
-            if(!isApproved) {
-                navigate(null, '/pending');
-            } else {
-                setCurrentUser(newUser);
-                navigate(null, '/dashboard');
+                const profileData = { uid, role, name, email, school, approved: isApproved };
+                await setDoc(doc(db, "users", uid), profileData);
+                
+                currentUserData = profileData;
+                if (!isApproved) {
+                    navigate('/pending');
+                } else {
+                    navigate('/dashboard');
+                }
+            } catch (err) {
+                alert("Registration Error: " + err.message);
             }
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
-            // Admin Verification Override Check
-            if(email === 'sleaty8@gmail.com' && password === 'Sleaty8admin') {
-                const adminUser = { role: 'Admin', name: 'Sleaty8 Admin', email: 'sleaty8@gmail.com' };
-                setCurrentUser(adminUser);
-                navigate(null, '/admin');
-                return;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // The onAuthStateChanged callback hooks will direct routing from here
+            } catch (err) {
+                alert("Login Error: " + err.message);
             }
+        }
 
-            let users = JSON.parse(localStorage.getItem('users'));
-            let user = users.find(u => u.email === email && u.password === password);
+        async function renderAdminTerminal() {
+            const container = document.getElementById('admin-request-rows');
+            if (!container) return;
+            
+            try {
+                const q = query(collection(db, "users"), where("role", "==", "Teacher"), where("approved", "==", false));
+                const querySnapshot = await getDocs(q);
+                container.innerHTML = '';
 
-            if(!user) {
-                alert("Invalid verification credentials.");
-                return;
+                if (querySnapshot.empty) {
+                    container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No critical authorization requests pending.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((docRecord) => {
+                    const t = docRecord.data();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${t.name}</td>
+                        <td>${t.email}</td>
+                        <td><span class="badge badge-warn">${t.school}</span></td>
+                        <td><button class="btn btn-sm action-approve-btn" data-school="${t.school}">Approve School</button></td>
+                    `;
+                    container.appendChild(tr);
+                });
+
+                // Attach dynamic button actions
+                document.querySelectorAll('.action-approve-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        approveSchool(e.target.getAttribute('data-school'));
+                    });
+                });
+            } catch (err) {
+                container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--danger);">Error pulling requests: ${err.message}</td></tr>`;
             }
+        }
 
-            let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
-            if(user.role === 'Teacher' && approvedSchools.includes(user.school.toLowerCase().trim())) {
-                user.approved = true;
-                localStorage.setItem('users', JSON.stringify(users));
+        async function approveSchool(schoolName) {
+            const standardizedName = schoolName.toLowerCase().trim();
+            try {
+                // 1. Add to verified global configurations list
+                await setDoc(doc(db, "config", "schools"), {
+                    approved: arrayUnion(standardizedName)
+                }, { merge: true });
+
+                // 2. Fetch and unlock all teachers belonging to this school mapping
+                const q = query(collection(db, "users"), where("school", "==", schoolName), where("approved", "==", false));
+                const querySnapshot = await getDocs(q);
+                
+                const updates = [];
+                querySnapshot.forEach((userDoc) => {
+                    updates.push(updateDoc(doc(db, "users", userDoc.id), { approved: true }));
+                });
+                await Promise.all(updates);
+
+                alert(`Authorized! ${schoolName} is verified. All matching teachers are cleared.`);
+                renderAdminTerminal();
+            } catch(err) {
+                alert("Error approving school: " + err.message);
             }
-
-            if(user.role === 'Teacher' && !user.approved) {
-                navigate(null, '/pending');
-                return;
-            }
-
-            setCurrentUser(user);
-            navigate(null, '/dashboard');
         }
 
         function setupDashboardUI(user) {
@@ -355,118 +477,33 @@
             document.getElementById('dash-school').innerText = user.role === 'Teacher' ? `🏫 ${user.school}` : `🎓 Student Portal`;
         }
 
-        function renderAdminTerminal() {
-            const container = document.getElementById('admin-request-rows');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            let users = JSON.parse(localStorage.getItem('users'));
-            let pendingTeachers = users.filter(u => u.role === 'Teacher' && !u.approved);
-
-            if(pendingTeachers.length === 0) {
-                container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No critical authorization requests pending.</td></tr>`;
-                return;
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                navigate('/login');
+            } catch (err) {
+                alert("Logout Failed: " + err.message);
             }
-
-            pendingTeachers.forEach(t => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${t.name}</td>
-                    <td>${t.email}</td>
-                    <td><span class="badge badge-warn">${t.school}</span></td>
-                    <td><button class="btn btn-sm" onclick="approveSchool('${t.school}')">Approve School</button></td>
-                `;
-                container.appendChild(tr);
-            });
         }
 
-        function approveSchool(schoolName) {
-            let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
-            const standardizedName = schoolName.toLowerCase().trim();
-            
-            if(!approvedSchools.includes(standardizedName)) {
-                approvedSchools.push(standardizedName);
-                localStorage.setItem('approvedSchools', JSON.stringify(approvedSchools));
-            }
+        // --- EVENT BINDINGS FOR ELEMENTS ---
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('register-form').addEventListener('submit', handleRegister);
+        
+        document.getElementById('to-register-link').addEventListener('click', (e) => { e.preventDefault(); navigate('/register'); });
+        document.getElementById('to-login-link').addEventListener('click', (e) => { e.preventDefault(); navigate('/login'); });
+        document.getElementById('pending-back-btn').addEventListener('click', () => handleLogout());
+        document.getElementById('settings-back-btn').addEventListener('click', () => navigate('/dashboard'));
+        
+        document.getElementById('nav-dash-btn').addEventListener('click', () => navigate('/dashboard'));
+        document.getElementById('nav-set-btn').addEventListener('click', () => navigate('/settings'));
+        
+        document.querySelectorAll('.external-logout-btn').forEach(btn => {
+            btn.addEventListener('click', handleLogout);
+        });
 
-            let users = JSON.parse(localStorage.getItem('users'));
-            users = users.map(u => {
-                if(u.school && u.school.toLowerCase().trim() === standardizedName) {
-                    u.approved = true;
-                }
-                return u;
-            });
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            renderAdminTerminal();
-            alert(`Authorized! ${schoolName} is verified. All matching teachers are cleared.`);
-        }
-
-        function logout() {
-            setCurrentUser(null);
-            document.getElementById('login-email').value = '';
-            document.getElementById('login-password').value = '';
-            navigate(null, '/login');
-        }
-
-        function navigate(event, path) {
-            if (event) event.preventDefault();
-            window.history.pushState({}, "", path);
-            handleLocation();
-        }
-
-        // --- 🛡️ SECURITY & ROUTING ENGINE ---
-        function handleLocation() {
-            let path = window.location.pathname;
-            const user = getCurrentUser();
-
-            // 1. Redirect root path cleanly if a session is present
-            if (path === '/' || path === '/login' || path === '/register') {
-                if (user) {
-                    if (user.role === 'Admin' && user.email === 'sleaty8@gmail.com') {
-                        path = '/admin';
-                        window.history.replaceState({}, "", path);
-                    } else {
-                        path = '/dashboard';
-                        window.history.replaceState({}, "", path);
-                    }
-                }
-            }
-
-            // 2. Strict Security Check: Protect the /admin route
-            if (path === '/admin') {
-                if (!user || user.role !== 'Admin' || user.email !== 'sleaty8@gmail.com') {
-                    alert("⚠️ Access Denied: Administrator clearance missing.");
-                    path = '/login';
-                    window.history.replaceState({}, "", path);
-                } else {
-                    renderAdminTerminal(); // Ensure data table updates correctly on route load
-                }
-            }
-
-            // 3. Protect standard dashboards/settings
-            if (path === '/dashboard' || path === '/settings') {
-                if (!user) {
-                    path = '/login';
-                    window.history.replaceState({}, "", path);
-                } else if (user.role === 'Admin') {
-                    path = '/admin';
-                    window.history.replaceState({}, "", path);
-                } else {
-                    setupDashboardUI(user);
-                }
-            }
-
-            // Fallback default view state routing matching
-            const viewId = routes[path] || 'view-login'; 
-            
-            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-            const activeView = document.getElementById(viewId);
-            if (activeView) activeView.classList.add('active');
-        }
-
-        window.onpopstate = handleLocation;
-        handleLocation();
+        document.getElementById('role-student').addEventListener('change', () => document.getElementById('school-spec-group').style.display = 'none');
+        document.getElementById('role-teacher').addEventListener('change', () => document.getElementById('school-spec-group').style.display = 'block');
     </script>
 </body>
 </html>
