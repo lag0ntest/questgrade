@@ -1,1 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestGrade - Level Up Your Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Smooth Fade-in Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .view-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 2rem;
+            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .view-container.active {
+            display: flex;
+        }
+
+        /* Glassmorphism Card Styling */
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+        }
+
+        .brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #4f46e5, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .switch-prompt {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .switch-prompt a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-layout {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .sidebar {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            height: fit-content;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active-nav {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card.success { border-left-color: var(--accent); }
+
+        .stat-val {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        .quest-list {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .quest-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .quest-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <div id="view-login" class="view-container">
+        <div class="auth-card">
+            <h1 class="brand-title">QuestGrade</h1>
+            <p class="subtitle">Ready for today's warm-up?</p>
+            <form onsubmit="handleAuth(event, 'login')">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" required placeholder="teacher@school.edu">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn">Launch Session</button>
+            </form>
+            <p class="switch-prompt">New to QuestGrade? <a href="/register" onclick="navigate(event, '/register')">Create an account</a></p>
+        </div>
+    </div>
+
+    <div id="view-register" class="view-container">
+        <div class="auth-card">
+            <h1 class="brand-title">QuestGrade</h1>
+            <p class="subtitle">Join the ultimate classroom platform</p>
+            <form onsubmit="handleAuth(event, 'register')">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" required placeholder="Alex Mercer">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" required placeholder="alex@school.edu">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn">Create Free Account</button>
+            </form>
+            <p class="switch-prompt">Already have an account? <a href="/login" onclick="navigate(event, '/login')">Sign In</a></p>
+        </div>
+    </div>
+
+    <div id="view-dashboard" class="view-container">
+        <div style="width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center;">
+            <h2>Welcome Back, Educator 👋</h2>
+            <button class="btn" style="width:auto; padding: 0.5rem 1rem;" onclick="navigate(null, '/login')">Sign Out</button>
+        </div>
+        
+        <div class="dashboard-layout">
+            <div class="sidebar">
+                <div class="nav-item active-nav" onclick="navigate(null, '/dashboard')">Dashboard</div>
+                <div class="nav-item" onclick="navigate(null, '/settings')">Settings</div>
+            </div>
+            
+            <div class="main-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div style="color:var(--text-muted); font-size:0.875rem;">Active Warm-ups</div>
+                        <div class="stat-val">3 Ongoing</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div style="color:var(--text-muted); font-size:0.875rem;">Avg. Quiz Score</div>
+                        <div class="stat-val">87.4%</div>
+                    </div>
+                </div>
+
+                <div class="quest-list">
+                    <h3 style="margin-bottom:1rem;">Recent Assignments & Quizzes</h3>
+                    <div class="quest-item">
+                        <div>
+                            <strong>🔥 Morning Warm-Up #12</strong>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">5 Questions • Algebra I</div>
+                        </div>
+                        <span style="color:var(--accent); font-weight:600;">Active</span>
+                    </div>
+                    <div class="quest-item">
+                        <div>
+                            <strong>📝 Weekly Homework Check</strong>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">Due Tomorrow • Geometry</div>
+                        </div>
+                        <span style="color:var(--text-muted);">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-settings" class="view-container">
+        <div class="auth-card" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1.5rem;">⚙️ Platform Settings</h2>
+            <div class="form-group">
+                <label>Classroom Name</label>
+                <input type="text" value="Period 3 - Mathematics">
+            </div>
+            <button class="btn" onclick="navigate(null, '/dashboard')">Save Configurations</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ☁️ CLOUDBASE / BACKEND INTEGRATION PLACEHOLDER ---
+        // When you're ready to add your cloud base service (Firebase, Supabase, etc.), 
+        // initialize it right here.
+        /*
+        const cloudbaseConfig = { apiKey: "YOUR_KEY", authDomain: "YOUR_DOMAIN" };
+        const app = initializeApp(cloudbaseConfig);
+        */
+
+        // Simple Client-Side SPA Router
+        const routes = {
+            '/': 'view-login',
+            '/login': 'view-login',
+            '/register': 'view-register',
+            '/dashboard': 'view-dashboard',
+            '/settings': 'view-settings'
+        };
+
+        function handleLocation() {
+            const path = window.location.pathname;
+            // Default back to login if route doesn't exist
+            const viewId = routes[path] || 'view-login'; 
+            
+            // Hide all views, then show the active one
+            document.querySelectorAll('.view-container').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            const activeView = document.getElementById(viewId);
+            if (activeView) activeView.classList.add('active');
+        }
+
+        function navigate(event, path) {
+            if (event) event.preventDefault();
+            window.history.pushState({}, "", path);
+            handleLocation();
+        }
+
+        function handleAuth(event, type) {
+            event.preventDefault();
+            // Here you would hook up your database/auth calls
+            console.log(`Performing ${type}...`);
+            
+            // Simulating successful login/register transition to dashboard
+            navigate(null, '/dashboard');
+        }
+
+        // Listen for back/forward browser button presses
+        window.onpopstate = handleLocation;
+        // Initial route check on page load
+        handleLocation();
+    </script>
+</body>
+</html>
