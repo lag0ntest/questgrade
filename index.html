@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuestGrade - Level Up Your Learning</title>
+    <title>QuestGrade - School Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,37 +15,19 @@
             --primary: #6366f1;
             --primary-hover: #4f46e5;
             --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --font-main: 'Plus Jakarta Sans', sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: var(--font-main);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        /* Smooth Fade-in Animation */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .view-container {
@@ -55,230 +37,163 @@
             justify-content: center;
             flex-grow: 1;
             padding: 2rem;
-            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .view-container.active {
-            display: flex;
-        }
+        .view-container.active { display: flex; }
 
-        /* Glassmorphism Card Styling */
         .auth-card {
             background: var(--bg-card);
             border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 2.5rem;
             border-radius: 16px;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+            max-width: 460px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
         }
 
         .brand-title {
-            font-size: 2rem;
+            font-size: 2.25rem;
             font-weight: 800;
             text-align: center;
             margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #4f46e5, #10b981);
+            background: linear-gradient(to right, #6366f1, #10b981);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-            text-align: center;
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
+        .subtitle { color: var(--text-muted); text-align: center; font-size: 0.95rem; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+        
+        .form-group input, .form-group select {
+            width: 100%; padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px; color: white; font-size: 1rem; transition: all 0.2s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
-        /* Form Controls */
-        .form-group {
-            margin-bottom: 1.25rem;
+        .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+        .radio-label {
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 0.75rem;
+            text-align: center; cursor: pointer; font-weight: 600; display: block; transition: all 0.2s;
         }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-main);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        .radio-group input { display: none; }
+        .radio-group input:checked + .radio-label {
+            border-color: var(--primary); background: rgba(99, 102, 241, 0.15); color: var(--primary);
         }
 
         .btn {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 0.5rem;
+            width: 100%; padding: 0.75rem; background: var(--primary); color: white;
+            border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease; margin-top: 0.5rem;
         }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-sec { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;}
+        .btn-sec:hover { background: rgba(255, 255, 255, 0.05); }
+        .btn-sm { width: auto; padding: 0.4rem 0.8rem; font-size: 0.875rem; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
 
-        .btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .switch-prompt {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
-        .switch-prompt a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
+        .switch-prompt { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted); }
+        .switch-prompt a { color: var(--primary); text-decoration: none; font-weight: 600; }
 
         /* Dashboard Layout */
-        .dashboard-layout {
-            width: 100%;
-            max-width: 1200px;
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .sidebar {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            height: fit-content;
-        }
-
-        .nav-item {
-            padding: 0.75rem 1rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .nav-item:hover, .nav-item.active-nav {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-card.success { border-left-color: var(--accent); }
-
-        .stat-val {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-top: 0.5rem;
-        }
-
-        .quest-list {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .quest-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .quest-item:last-child { border-bottom: none; }
+        .dashboard-layout { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 240px 1fr; gap: 2rem; margin-top: 2rem; }
+        .sidebar { background: var(--bg-card); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; height: fit-content; }
+        .nav-item { padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; cursor: pointer; }
+        .nav-item:hover, .nav-item.active-nav { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+        .main-content { display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        /* Tables & Lists */
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
+        .admin-table th, .admin-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .admin-table th { color: var(--text-muted); font-weight: 600; }
+        .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-warn { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
     </style>
 </head>
 <body>
 
+    <!-- LOGIN VIEW -->
     <div id="view-login" class="view-container">
         <div class="auth-card">
             <h1 class="brand-title">QuestGrade</h1>
-            <p class="subtitle">Ready for today's warm-up?</p>
-            <form onsubmit="handleAuth(event, 'login')">
+            <p class="subtitle">Log in to your school workspace</p>
+            <form onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" required placeholder="teacher@school.edu">
+                    <label>School Email Address</label>
+                    <input type="email" id="login-email" required placeholder="you@school.edu">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" required placeholder="••••••••">
+                    <input type="password" id="login-password" required placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn">Launch Session</button>
+                <button type="submit" class="btn">Sign In</button>
             </form>
-            <p class="switch-prompt">New to QuestGrade? <a href="/register" onclick="navigate(event, '/register')">Create an account</a></p>
+            <p class="switch-prompt">Need a portal? <a href="/register" onclick="navigate(event, '/register')">Register here</a></p>
         </div>
     </div>
 
+    <!-- REGISTER VIEW -->
     <div id="view-register" class="view-container">
         <div class="auth-card">
             <h1 class="brand-title">QuestGrade</h1>
-            <p class="subtitle">Join the ultimate classroom platform</p>
-            <form onsubmit="handleAuth(event, 'register')">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" required placeholder="Alex Mercer">
+            <p class="subtitle">Create your academic account</p>
+            <form onsubmit="handleRegister(event)">
+                <div class="radio-group">
+                    <div>
+                        <input type="radio" id="role-student" name="role" value="Student" checked onchange="toggleSchoolField()">
+                        <label for="role-student" class="radio-label">Student</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="role-teacher" name="role" value="Teacher" onchange="toggleSchoolField()">
+                        <label for="role-teacher" class="radio-label">Teacher</label>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" required placeholder="alex@school.edu">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="Alex Mercer">
+                </div>
+                <div class="form-group">
+                    <label>School Email Address</label>
+                    <input type="email" id="reg-email" required placeholder="name@school.edu">
+                </div>
+                <div id="school-spec-group" class="form-group" style="display: none;">
+                    <label>School Name</label>
+                    <input type="text" id="reg-school" placeholder="Oak Creek High School">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" required placeholder="••••••••">
+                    <input type="password" id="reg-password" required placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn">Create Free Account</button>
+                <button type="submit" class="btn">Register Account</button>
             </form>
-            <p class="switch-prompt">Already have an account? <a href="/login" onclick="navigate(event, '/login')">Sign In</a></p>
+            <p class="switch-prompt">Already integrated? <a href="/login" onclick="navigate(event, '/login')">Sign In</a></p>
         </div>
     </div>
 
+    <!-- PENDING APPROVAL NOTICE VIEW -->
+    <div id="view-pending" class="view-container">
+        <div class="auth-card" style="text-align: center;">
+            <h2 style="color: var(--warning); margin-bottom: 1rem;">🔒 Request Sent to Admin</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Your school access has not been approved yet. A setup verification request was sent to the administration terminal.</p>
+            <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Once an administrator approves your school, your portal access will activate automatically.</p>
+            <button class="btn btn-sec" onclick="navigate(null, '/login')">Back to Login</button>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE DASHBOARD (TEACHER/STUDENT) -->
     <div id="view-dashboard" class="view-container">
         <div style="width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center;">
-            <h2>Welcome Back, Educator 👋</h2>
-            <button class="btn" style="width:auto; padding: 0.5rem 1rem;" onclick="navigate(null, '/login')">Sign Out</button>
+            <div>
+                <h2 id="dash-welcome">Welcome Back 👋</h2>
+                <p id="dash-school" style="color: var(--text-muted); font-size: 0.9rem;"></p>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="logout()">Sign Out</button>
         </div>
         
         <div class="dashboard-layout">
@@ -288,79 +203,200 @@
             </div>
             
             <div class="main-content">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div style="color:var(--text-muted); font-size:0.875rem;">Active Warm-ups</div>
-                        <div class="stat-val">3 Ongoing</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div style="color:var(--text-muted); font-size:0.875rem;">Avg. Quiz Score</div>
-                        <div class="stat-val">87.4%</div>
-                    </div>
-                </div>
-
-                <div class="quest-list">
-                    <h3 style="margin-bottom:1rem;">Recent Assignments & Quizzes</h3>
-                    <div class="quest-item">
-                        <div>
-                            <strong>🔥 Morning Warm-Up #12</strong>
-                            <div style="font-size:0.85rem; color:var(--text-muted);">5 Questions • Algebra I</div>
-                        </div>
-                        <span style="color:var(--accent); font-weight:600;">Active</span>
-                    </div>
-                    <div class="quest-item">
-                        <div>
-                            <strong>📝 Weekly Homework Check</strong>
-                            <div style="font-size:0.85rem; color:var(--text-muted);">Due Tomorrow • Geometry</div>
-                        </div>
-                        <span style="color:var(--text-muted);">Pending</span>
-                    </div>
+                <div style="background: var(--bg-card); padding: 2.5rem; border-radius: 12px; text-align: center; border: 1px dashed rgba(255, 255, 255, 0.1);">
+                    <h3 style="margin-bottom: 0.5rem;">No Current Assignments</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Your active workspace is blank. Ready to launch your next custom module?</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ADMINISTRATIVE TERMINAL VIEW -->
+    <div id="view-admin" class="view-container">
+        <div style="width:100%; max-width:1000px; display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+            <div>
+                <h2>🛡️ Global Admin Terminal</h2>
+                <p style="color: var(--text-muted);">Sleaty8 Control Center</p>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="logout()">Logout Admin</button>
+        </div>
+
+        <div style="background: var(--bg-card); width: 100%; max-width: 1000px; border-radius: 12px; padding: 1.5rem;">
+            <h3>Pending School Access Requests</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Email</th>
+                        <th>Requested School</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-request-rows">
+                    <!-- Dynamic Rows Insertion -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
     <div id="view-settings" class="view-container">
         <div class="auth-card" style="max-width: 600px;">
             <h2 style="margin-bottom: 1.5rem;">⚙️ Platform Settings</h2>
-            <div class="form-group">
-                <label>Classroom Name</label>
-                <input type="text" value="Period 3 - Mathematics">
-            </div>
-            <button class="btn" onclick="navigate(null, '/dashboard')">Save Configurations</button>
+            <button class="btn" onclick="navigate(null, '/dashboard')">Return to Dashboard</button>
         </div>
     </div>
 
     <script>
-        // --- ☁️ CLOUDBASE / BACKEND INTEGRATION PLACEHOLDER ---
-        // When you're ready to add your cloud base service (Firebase, Supabase, etc.), 
-        // initialize it right here.
-        /*
-        const cloudbaseConfig = { apiKey: "YOUR_KEY", authDomain: "YOUR_DOMAIN" };
-        const app = initializeApp(cloudbaseConfig);
-        */
+        // Data Store Mocking Cloudbase Local State
+        if(!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify([]));
+        }
+        if(!localStorage.getItem('approvedSchools')) {
+            localStorage.setItem('approvedSchools', JSON.stringify([]));
+        }
 
-        // Simple Client-Side SPA Router
         const routes = {
             '/': 'view-login',
             '/login': 'view-login',
             '/register': 'view-register',
+            '/pending': 'view-pending',
             '/dashboard': 'view-dashboard',
+            '/admin': 'view-admin',
             '/settings': 'view-settings'
         };
 
-        function handleLocation() {
-            const path = window.location.pathname;
-            // Default back to login if route doesn't exist
-            const viewId = routes[path] || 'view-login'; 
-            
-            // Hide all views, then show the active one
-            document.querySelectorAll('.view-container').forEach(view => {
-                view.classList.remove('active');
+        let currentUser = null;
+
+        function toggleSchoolField() {
+            const isTeacher = document.getElementById('role-teacher').checked;
+            document.getElementById('school-spec-group').style.display = isTeacher ? 'block' : 'none';
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const school = role === 'Teacher' ? document.getElementById('reg-school').value : 'Direct Student Integration';
+
+            let users = JSON.parse(localStorage.getItem('users'));
+            if(users.find(u => u.email === email)) {
+                alert("This email portal is already registered.");
+                return;
+            }
+
+            let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
+            let isApproved = (role === 'Student' || approvedSchools.includes(school.toLowerCase().trim()));
+
+            const newUser = { role, name, email, password, school, approved: isApproved };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            if(!isApproved) {
+                navigate(null, '/pending');
+            } else {
+                currentUser = newUser;
+                launchDashboard();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Admin Override Credentials check
+            if(email === 'sleaty8@gmail.com' && password === 'Sleaty8admin') {
+                currentUser = { role: 'Admin', name: 'Sleaty8 Admin' };
+                renderAdminTerminal();
+                navigate(null, '/admin');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users'));
+            let user = users.find(u => u.email === email && u.password === password);
+
+            if(!user) {
+                alert("Invalid verification credentials.");
+                return;
+            }
+
+            // Secondary structural check if a school was recently approved globally
+            let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
+            if(user.role === 'Teacher' && approvedSchools.includes(user.school.toLowerCase().trim())) {
+                user.approved = true;
+                // update back to local state
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+
+            if(user.role === 'Teacher' && !user.approved) {
+                navigate(null, '/pending');
+                return;
+            }
+
+            currentUser = user;
+            launchDashboard();
+        }
+
+        function launchDashboard() {
+            document.getElementById('dash-welcome').innerText = `Welcome Back, ${currentUser.name} (${currentUser.role}) 👋`;
+            document.getElementById('dash-school').innerText = currentUser.role === 'Teacher' ? `🏫 ${currentUser.school}` : `🎓 Student Portal`;
+            navigate(null, '/dashboard');
+        }
+
+        function renderAdminTerminal() {
+            const container = document.getElementById('admin-request-rows');
+            container.innerHTML = '';
+            let users = JSON.parse(localStorage.getItem('users'));
+            let pendingTeachers = users.filter(u => u.role === 'Teacher' && !u.approved);
+
+            if(pendingTeachers.length === 0) {
+                container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No critical authorization requests pending.</td></tr>`;
+                return;
+            }
+
+            pendingTeachers.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.name}</td>
+                    <td>${t.email}</td>
+                    <td><span class="badge badge-warn">${t.school}</span></td>
+                    <td><button class="btn btn-sm" onclick="approveSchool('${t.school}')">Approve School</button></td>
+                `;
+                container.appendChild(tr);
             });
+        }
+
+        function approveSchool(schoolName) {
+            let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
+            const standardizedName = schoolName.toLowerCase().trim();
             
-            const activeView = document.getElementById(viewId);
-            if (activeView) activeView.classList.add('active');
+            if(!approvedSchools.includes(standardizedName)) {
+                approvedSchools.push(standardizedName);
+                localStorage.setItem('approvedSchools', JSON.stringify(approvedSchools));
+            }
+
+            // Globally unlock all users registered from this school pathing
+            let users = JSON.parse(localStorage.getItem('users'));
+            users = users.map(u => {
+                if(u.school && u.school.toLowerCase().trim() === standardizedName) {
+                    u.approved = true;
+                }
+                return u;
+            });
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            renderAdminTerminal();
+            alert(`Authorized! ${schoolName} is verified. All matching teachers are cleared.`);
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            navigate(null, '/login');
         }
 
         function navigate(event, path) {
@@ -369,18 +405,16 @@
             handleLocation();
         }
 
-        function handleAuth(event, type) {
-            event.preventDefault();
-            // Here you would hook up your database/auth calls
-            console.log(`Performing ${type}...`);
+        function handleLocation() {
+            const path = window.location.pathname;
+            const viewId = routes[path] || 'view-login'; 
             
-            // Simulating successful login/register transition to dashboard
-            navigate(null, '/dashboard');
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            const activeView = document.getElementById(viewId);
+            if (activeView) activeView.classList.add('active');
         }
 
-        // Listen for back/forward browser button presses
         window.onpopstate = handleLocation;
-        // Initial route check on page load
         handleLocation();
     </script>
 </body>
