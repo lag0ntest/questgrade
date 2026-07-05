@@ -246,7 +246,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Your Exact Firebase Web App Config
         const firebaseConfig = {
             apiKey: "AIzaSyC61lZSizzXl4pFiCWFfnpLufvmzJWUICY",
             authDomain: "studysnap-8f5d6.firebaseapp.com",
@@ -257,7 +256,6 @@
             measurementId: "G-Y6NFH4Y7HE"
         };
 
-        // Init Core Services
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -275,21 +273,30 @@
         let currentUserData = null;
         let authInitializing = true;
 
+        // --- AUTOMATED ADMIN PROVISIONING ---
+        // Forces create or verify your specific admin account right into Firebase Auth dynamically
+        async function autoSeedAdminAccount() {
+            try {
+                await createUserWithEmailAndPassword(auth, "sleaty8@gmail.com", "Sleaty8admin");
+                console.log("Admin base generated inside Firebase database successfully.");
+            } catch (e) {
+                // Account already exists or is configured
+            }
+        }
+        autoSeedAdminAccount();
+
         // --- AUTH SESSION PERSISTENCE WATCHER ---
         onAuthStateChanged(auth, async (user) => {
             authInitializing = false;
             if (user) {
-                // Check if admin override logged in
                 if (user.email === 'sleaty8@gmail.com') {
                     currentUserData = { role: 'Admin', name: 'Sleaty8 Admin', email: 'sleaty8@gmail.com' };
                     handleLocation();
                 } else {
-                    // Pull profile classifications from Firestore
                     const docSnap = await getDoc(doc(db, "users", user.uid));
                     if (docSnap.exists()) {
                         currentUserData = docSnap.data();
                         
-                        // Check if their school status was approved since last visit
                         if (currentUserData.role === 'Teacher' && !currentUserData.approved) {
                             const schoolSnap = await getDoc(doc(db, "config", "schools"));
                             const approvedList = schoolSnap.exists() ? schoolSnap.data().approved || [] : [];
@@ -313,7 +320,6 @@
 
             let path = window.location.pathname;
 
-            // Route block verification steps
             if (path === '/' || path === '/login' || path === '/register') {
                 if (currentUserData) {
                     path = currentUserData.role === 'Admin' ? '/admin' : (currentUserData.approved ? '/dashboard' : '/pending');
@@ -404,7 +410,6 @@
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                // The onAuthStateChanged callback hooks will direct routing from here
             } catch (err) {
                 alert("Login Error: " + err.message);
             }
@@ -415,6 +420,7 @@
             if (!container) return;
             
             try {
+                // Pulls all pending teacher requests directly from Firestore
                 const q = query(collection(db, "users"), where("role", "==", "Teacher"), where("approved", "==", false));
                 const querySnapshot = await getDocs(q);
                 container.innerHTML = '';
@@ -436,7 +442,11 @@
                     container.appendChild(tr);
                 });
 
-                // Attach dynamic button actions
+                document.querySelectorAll('.action-approve-btn').forEach(btn => {
+                    // Create an inline execution instance to prevent cloning bugs
+                    btn.replaceWith(btn.cloneNode(true));
+                });
+
                 document.querySelectorAll('.action-approve-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         approveSchool(e.target.getAttribute('data-school'));
@@ -450,12 +460,10 @@
         async function approveSchool(schoolName) {
             const standardizedName = schoolName.toLowerCase().trim();
             try {
-                // 1. Add to verified global configurations list
                 await setDoc(doc(db, "config", "schools"), {
                     approved: arrayUnion(standardizedName)
                 }, { merge: true });
 
-                // 2. Fetch and unlock all teachers belonging to this school mapping
                 const q = query(collection(db, "users"), where("school", "==", schoolName), where("approved", "==", false));
                 const querySnapshot = await getDocs(q);
                 
