@@ -248,7 +248,7 @@
     </div>
 
     <script>
-        // Data Store Mocking Cloudbase Local State
+        // Set up Local Storage keys
         if(!localStorage.getItem('users')) {
             localStorage.setItem('users', JSON.stringify([]));
         }
@@ -266,7 +266,19 @@
             '/settings': 'view-settings'
         };
 
-        let currentUser = null;
+        // Pull active user session directly from localStorage memory
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('questgrade_session');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+
+        function setCurrentUser(userObj) {
+            if (userObj) {
+                localStorage.setItem('questgrade_session', JSON.stringify(userObj));
+            } else {
+                localStorage.removeItem('questgrade_session');
+            }
+        }
 
         function toggleSchoolField() {
             const isTeacher = document.getElementById('role-teacher').checked;
@@ -297,8 +309,8 @@
             if(!isApproved) {
                 navigate(null, '/pending');
             } else {
-                currentUser = newUser;
-                launchDashboard();
+                setCurrentUser(newUser);
+                navigate(null, '/dashboard');
             }
         }
 
@@ -307,10 +319,10 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
-            // Admin Override Credentials check
+            // Admin Verification Override Check
             if(email === 'sleaty8@gmail.com' && password === 'Sleaty8admin') {
-                currentUser = { role: 'Admin', name: 'Sleaty8 Admin' };
-                renderAdminTerminal();
+                const adminUser = { role: 'Admin', name: 'Sleaty8 Admin', email: 'sleaty8@gmail.com' };
+                setCurrentUser(adminUser);
                 navigate(null, '/admin');
                 return;
             }
@@ -323,11 +335,9 @@
                 return;
             }
 
-            // Secondary structural check if a school was recently approved globally
             let approvedSchools = JSON.parse(localStorage.getItem('approvedSchools'));
             if(user.role === 'Teacher' && approvedSchools.includes(user.school.toLowerCase().trim())) {
                 user.approved = true;
-                // update back to local state
                 localStorage.setItem('users', JSON.stringify(users));
             }
 
@@ -336,19 +346,20 @@
                 return;
             }
 
-            currentUser = user;
-            launchDashboard();
+            setCurrentUser(user);
+            navigate(null, '/dashboard');
         }
 
-        function launchDashboard() {
-            document.getElementById('dash-welcome').innerText = `Welcome Back, ${currentUser.name} (${currentUser.role}) 👋`;
-            document.getElementById('dash-school').innerText = currentUser.role === 'Teacher' ? `🏫 ${currentUser.school}` : `🎓 Student Portal`;
-            navigate(null, '/dashboard');
+        function setupDashboardUI(user) {
+            document.getElementById('dash-welcome').innerText = `Welcome Back, ${user.name} (${user.role}) 👋`;
+            document.getElementById('dash-school').innerText = user.role === 'Teacher' ? `🏫 ${user.school}` : `🎓 Student Portal`;
         }
 
         function renderAdminTerminal() {
             const container = document.getElementById('admin-request-rows');
+            if (!container) return;
             container.innerHTML = '';
+            
             let users = JSON.parse(localStorage.getItem('users'));
             let pendingTeachers = users.filter(u => u.role === 'Teacher' && !u.approved);
 
@@ -378,7 +389,6 @@
                 localStorage.setItem('approvedSchools', JSON.stringify(approvedSchools));
             }
 
-            // Globally unlock all users registered from this school pathing
             let users = JSON.parse(localStorage.getItem('users'));
             users = users.map(u => {
                 if(u.school && u.school.toLowerCase().trim() === standardizedName) {
@@ -393,7 +403,7 @@
         }
 
         function logout() {
-            currentUser = null;
+            setCurrentUser(null);
             document.getElementById('login-email').value = '';
             document.getElementById('login-password').value = '';
             navigate(null, '/login');
@@ -405,8 +415,49 @@
             handleLocation();
         }
 
+        // --- 🛡️ SECURITY & ROUTING ENGINE ---
         function handleLocation() {
-            const path = window.location.pathname;
+            let path = window.location.pathname;
+            const user = getCurrentUser();
+
+            // 1. Redirect root path cleanly if a session is present
+            if (path === '/' || path === '/login' || path === '/register') {
+                if (user) {
+                    if (user.role === 'Admin' && user.email === 'sleaty8@gmail.com') {
+                        path = '/admin';
+                        window.history.replaceState({}, "", path);
+                    } else {
+                        path = '/dashboard';
+                        window.history.replaceState({}, "", path);
+                    }
+                }
+            }
+
+            // 2. Strict Security Check: Protect the /admin route
+            if (path === '/admin') {
+                if (!user || user.role !== 'Admin' || user.email !== 'sleaty8@gmail.com') {
+                    alert("⚠️ Access Denied: Administrator clearance missing.");
+                    path = '/login';
+                    window.history.replaceState({}, "", path);
+                } else {
+                    renderAdminTerminal(); // Ensure data table updates correctly on route load
+                }
+            }
+
+            // 3. Protect standard dashboards/settings
+            if (path === '/dashboard' || path === '/settings') {
+                if (!user) {
+                    path = '/login';
+                    window.history.replaceState({}, "", path);
+                } else if (user.role === 'Admin') {
+                    path = '/admin';
+                    window.history.replaceState({}, "", path);
+                } else {
+                    setupDashboardUI(user);
+                }
+            }
+
+            // Fallback default view state routing matching
             const viewId = routes[path] || 'view-login'; 
             
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
