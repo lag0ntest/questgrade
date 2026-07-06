@@ -26,6 +26,11 @@
             --game-blue: #007aff;
             --game-orange: #ff9500;
             --game-green: #34c759;
+            
+            --red-glow: rgba(255, 59, 48, 0.15);
+            --blue-glow: rgba(0, 122, 255, 0.15);
+            --orange-glow: rgba(255, 149, 0, 0.15);
+            --green-glow: rgba(52, 199, 89, 0.15);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
@@ -69,7 +74,7 @@
         .subtitle { color: var(--text-muted); text-align: center; font-size: 0.95rem; margin-bottom: 2rem; }
         
         .form-group { margin-bottom: 1.25rem; width: 100%; }
-        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-main); }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; color: var(--text-muted); }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 0.75rem 1rem;
             background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
@@ -119,6 +124,51 @@
         .game-header { width: 100%; text-align: center; padding: 2rem; font-size: 2.5rem; font-weight: 800; color: white; background: rgba(0,0,0,0.2); border-radius: 12px; }
         .game-media-frame { width: 100%; max-width: 600px; height: 320px; background: #0b0f19; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 1.5rem auto; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; position: relative; }
         .game-media-frame img { width: 100%; height: 100%; object-fit: contain; }
+        
+        /* Blooket-Style Question Matrix Configuration Elements */
+        .blooket-creator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; width: 100%; margin-top: 0.5rem; }
+        .blooket-wrapper {
+            position: relative; display: flex; align-items: center; border-radius: 14px; border: 2px solid rgba(255, 255, 255, 0.08);
+            padding: 1rem; height: 85px; transition: all 0.2s ease-in-out; background: rgba(15, 23, 42, 0.3);
+        }
+        .blooket-wrapper:focus-within { transform: scale(1.01); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        
+        .blooket-wrapper.wrap-a { background: var(--red-glow); border-color: rgba(255, 59, 48, 0.3); }
+        .blooket-wrapper.wrap-a:focus-within { border-color: var(--game-red); }
+        .blooket-wrapper.wrap-b { background: var(--blue-glow); border-color: rgba(0, 122, 255, 0.3); }
+        .blooket-wrapper.wrap-b:focus-within { border-color: var(--game-blue); }
+        .blooket-wrapper.wrap-c { background: var(--orange-glow); border-color: rgba(255, 149, 0, 0.3); }
+        .blooket-wrapper.wrap-c:focus-within { border-color: var(--game-orange); }
+        .blooket-wrapper.wrap-d { background: var(--green-glow); border-color: rgba(52, 199, 89, 0.3); }
+        .blooket-wrapper.wrap-d:focus-within { border-color: var(--game-green); }
+
+        .blooket-radio-anchor { position: absolute; left: 1.25rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .blooket-radio-anchor input { display: none; }
+        .blooket-custom-box {
+            width: 26px; height: 26px; border-radius: 8px; border: 2px solid white; background: var(--bg-dark);
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+        }
+        .wrap-a .blooket-custom-box { border-color: var(--game-red); }
+        .wrap-b .blooket-custom-box { border-color: var(--game-blue); }
+        .wrap-c .blooket-custom-box { border-color: var(--game-orange); }
+        .wrap-d .blooket-custom-box { border-color: var(--game-green); }
+
+        .blooket-radio-anchor input:checked + .blooket-custom-box { border-color: transparent; }
+        .wrap-a .blooket-radio-anchor input:checked + .blooket-custom-box { background: var(--game-red); }
+        .wrap-b .blooket-radio-anchor input:checked + .blooket-custom-box { background: var(--game-blue); }
+        .wrap-c .blooket-radio-anchor input:checked + .blooket-custom-box { background: var(--game-orange); }
+        .wrap-d .blooket-radio-anchor input:checked + .blooket-custom-box { background: var(--game-green); }
+
+        .blooket-custom-box::after { content: '✓'; font-size: 0.9rem; font-weight: 800; color: white; display: none; }
+        .blooket-radio-anchor input:checked + .blooket-custom-box::after { display: block; }
+
+        .blooket-input-element {
+            width: 100%; pl: 3.5rem; background: transparent; border: none; color: white; font-size: 1.1rem;
+            font-weight: 600; padding-left: 3.25rem; transition: all 0.2s;
+        }
+        .blooket-input-element:focus { outline: none; }
+        .blooket-input-element::placeholder { color: rgba(255, 255, 255, 0.35); }
+
         .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%; max-width: 1200px; margin-top: 1rem; }
         .game-btn { 
             border: none; border-radius: 12px; padding: 3.5rem 2rem; font-size: 1.75rem; font-weight: 700; color: white; cursor: pointer; 
@@ -134,7 +184,7 @@
 
         .admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
         .admin-table th, .admin-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem; }
-        .admin-table th { color: var(--text-muted); font-weight: 600; }
+        .admin-table th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; }
         .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
         .badge-warn { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
@@ -145,7 +195,6 @@
         .checkbox-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; cursor: pointer; }
         .checkbox-item input { width: auto; margin-right: 0.25rem; }
 
-        /* Admin UI Extensions */
         .admin-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem; }
         .admin-tab-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1rem; font-weight: 600; padding: 0.5rem 1rem; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
         .admin-tab-btn.active-tab { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
@@ -155,12 +204,14 @@
         .stat-card { background: var(--bg-card); padding: 1.25rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
         .stat-num { font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-top: 0.25rem; }
         .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Toggle Switch Layout */
+        .header-capsule { display: flex; items-center: center; gap: 0.75rem; background: rgba(15, 23, 42, 0.4); padding: 0.5rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN VIEW -->
-    <div id="view-login" class="view-container">
+    <div id="view-login" class="view-container active">
         <div class="auth-card">
             <h1 class="brand-title">QuestGrade</h1>
             <p class="subtitle">Log in to your school workspace</p>
@@ -179,7 +230,6 @@
         </div>
     </div>
 
-    <!-- REGISTER VIEW -->
     <div id="view-register" class="view-container">
         <div class="auth-card">
             <h1 class="brand-title">QuestGrade</h1>
@@ -217,7 +267,6 @@
         </div>
     </div>
 
-    <!-- PENDING APPROVAL NOTICE VIEW -->
     <div id="view-pending" class="view-container">
         <div class="auth-card" style="text-align: center;">
             <h2 style="color: var(--warning); margin-bottom: 1rem;">🔒 Request Sent to Admin</h2>
@@ -226,7 +275,6 @@
         </div>
     </div>
 
-    <!-- MAIN PLATFORM INTERFACE -->
     <div id="view-dashboard" class="view-container">
         <div style="width:100%; max-width:1400px; display:flex; justify-content:space-between; align-items:center;">
             <div>
@@ -245,7 +293,6 @@
             </div>
             
             <div class="main-content" id="dashboard-subviews">
-                <!-- SUBVIEW: OVERVIEW -->
                 <div id="subview-overview" class="subview-item">
                     <div class="content-card">
                         <h3>Active Progress Analytics</h3>
@@ -256,7 +303,6 @@
                     </div>
                 </div>
 
-                <!-- SUBVIEW: CLASSES -->
                 <div id="subview-classes" class="subview-item" style="display:none;">
                     <div class="content-card teacher-only" style="margin-bottom: 1.5rem;">
                         <h3>Create New Class Environment</h3>
@@ -299,17 +345,28 @@
                     </div>
                 </div>
 
-                <!-- SUBVIEW: ASSIGNMENTS -->
                 <div id="subview-assignments" class="subview-item" style="display:none;">
                     <div class="content-card teacher-only" style="margin-bottom:1.5rem;">
-                        <h3>Deploy Specialized Assessment Module</h3>
-                        <div class="grid-2" style="margin-top:1rem;">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700;">Deploy Assessment Module</h3>
+                                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.15rem;">Broadcast new high-performance question sets to structural student spaces.</p>
+                            </div>
+                            <div class="header-capsule">
+                                <label class="checkbox-item" style="font-size: 0.8rem; font-weight: 600;"><input type="checkbox" id="chk-shuffle" checked> Shuffle Items</label>
+                                <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.15);"></div>
+                                <label class="checkbox-item" style="font-size: 0.8rem; font-weight: 600;"><input type="checkbox" id="chk-detect" checked> Security Sandbox</label>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
                             <div class="form-group">
                                 <label>Target Class Environment</label>
                                 <select id="assignment-class-dropdown"><option value="">No Environments Active</option></select>
                             </div>
                             <div class="form-group">
-                                <label>Module Structural Configuration</label>
+                                <label>Module Configuration Axis</label>
                                 <select id="assignment-type-dropdown">
                                     <option value="Homework">Homework Module</option>
                                     <option value="Warm-up">Warm-up Drill</option>
@@ -320,13 +377,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Question Core Text</label>
-                            <input type="text" id="assign-question-text" placeholder="Identify the critical absolute maximum value of the function graphed below:">
+                            <label>Question Core Text String</label>
+                            <textarea id="assign-question-text" rows="2" style="resize: none;" placeholder="Identify the critical absolute maximum value of the function graphed below:"></textarea>
                         </div>
 
                         <div class="grid-2">
                             <div class="form-group">
-                                <label>Optional Custom Image URL</label>
+                                <label>Optional Custom Image Asset Link</label>
                                 <input type="text" id="assign-image-url" placeholder="https://i.imgur.com/example.png">
                             </div>
                             <div class="form-group">
@@ -340,33 +397,55 @@
                             </div>
                         </div>
 
-                        <div class="grid-2" style="margin-top:0.5rem;">
-                            <div class="form-group"><label style="color:var(--game-red);">Option A (Red Anchor Block)</label><input type="text" id="opt-a" value="Value: Absolute Max at 4"></div>
-                            <div class="form-group"><label style="color:var(--game-blue);">Option B (Blue Anchor Block)</label><input type="text" id="opt-b" value="Value: Inflection Point at 0"></div>
-                            <div class="form-group"><label style="color:var(--game-orange);">Option C (Orange Anchor Block)</label><input type="text" id="opt-c" value="Value: Local Minimum at -2"></div>
-                            <div class="form-group"><label style="color:var(--game-green);">Option D (Green Anchor Block)</label><input type="text" id="opt-d" value="Value: Undefined Edge Continuity"></div>
-                        </div>
+                        <div class="form-group" style="margin-top: 0.5rem; margin-bottom: 1.5rem;">
+                            <label style="margin-bottom: 0.75rem;">Answers Configuration Matrix (Directly check choice anchor block to lock solution profile)</label>
+                            
+                            <div class="blooket-creator-grid">
+                                <div class="blooket-wrapper wrap-a">
+                                    <label class="blooket-radio-anchor">
+                                        <input type="radio" name="blooket-correct" value="A" checked>
+                                        <div class="blooket-custom-box"></div>
+                                    </label>
+                                    <input type="text" id="opt-a" class="blooket-input-element" value="Value: Absolute Max at 4" placeholder="Enter Option A...">
+                                </div>
 
-                        <div class="form-group">
-                            <label>Designated Target Correct Option</label>
-                            <select id="assign-correct-option">
-                                <option value="A">Option A (Red)</option>
-                                <option value="B">Option B (Blue)</option>
-                                <option value="C">Option C (Orange)</option>
-                                <option value="D">Option D (Green)</option>
-                            </select>
-                        </div>
+                                <div class="blooket-wrapper wrap-b">
+                                    <label class="blooket-radio-anchor">
+                                        <input type="radio" name="blooket-correct" value="B">
+                                        <div class="blooket-custom-box"></div>
+                                    </label>
+                                    <input type="text" id="opt-b" class="blooket-input-element" value="Value: Inflection Point at 0" placeholder="Enter Option B...">
+                                </div>
 
-                        <div class="form-group">
-                            <label>Strict Integrity & Security Modules</label>
-                            <div class="config-checkbox-group">
-                                <label class="checkbox-item"><input type="checkbox" id="chk-detect" checked> Enable Advanced Sandbox Blur & Tab/Window Switch Detection Tracking</label>
-                                <label class="checkbox-item"><input type="checkbox" id="chk-lockout"> Trigger Automatic Lockout and Auto-Submission on Browser Blur Breach</label>
-                                <label class="checkbox-item"><input type="checkbox" id="chk-shuffle"> Randomize & Shuffle Multiple-Choice Matrix Mapping Options</label>
+                                <div class="blooket-wrapper wrap-c">
+                                    <label class="blooket-radio-anchor">
+                                        <input type="radio" name="blooket-correct" value="C">
+                                        <div class="blooket-custom-box"></div>
+                                    </label>
+                                    <input type="text" id="opt-c" class="blooket-input-element" value="Value: Local Minimum at -2" placeholder="Enter Option C...">
+                                </div>
+
+                                <div class="blooket-wrapper wrap-d">
+                                    <label class="blooket-radio-anchor">
+                                        <input type="radio" name="blooket-correct" value="D">
+                                        <div class="blooket-custom-box"></div>
+                                    </label>
+                                    <input type="text" id="opt-d" class="blooket-input-element" value="Value: Undefined Edge Continuity" placeholder="Enter Option D...">
+                                </div>
                             </div>
                         </div>
 
-                        <button class="btn btn-accent" id="action-deploy-assignment">Broadcast Live Module</button>
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label>Advanced Security Isolation Modules</label>
+                            <div class="config-checkbox-group">
+                                <label class="checkbox-item"><input type="checkbox" id="chk-lockout"> Trigger Automatic Lockout and Auto-Submission on Browser Blur Breach</label>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+                            <button class="btn btn-sm btn-sec" style="margin: 0; padding: 0.75rem 1.5rem;">Discard Core</button>
+                            <button class="btn btn-sm btn-accent" id="action-deploy-assignment" style="margin: 0; padding: 0.75rem 1.5rem;">Broadcast Live Module</button>
+                        </div>
                     </div>
 
                     <div class="content-card">
@@ -378,7 +457,6 @@
         </div>
     </div>
 
-    <!-- LIVE ASSESSMENT INTERACTIVE SIMULATOR INTERFACE -->
     <div id="view-assessment" class="view-container" style="padding:0; background: #0b0e14;">
         <div style="width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center; padding:1.5rem;">
             <h3 id="assess-module-title" style="color:var(--text-muted);">Assessment Terminal</h3>
@@ -405,17 +483,15 @@
         </div>
     </div>
 
-    <!-- GLOBAL ADMINISTRATIVE TERMINAL VIEW -->
     <div id="view-admin" class="view-container" style="justify-content: flex-start; max-width:1200px; margin: 0 auto; width:100%;">
         <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; margin-top: 2rem;">
             <div>
                 <h2>🛡️ Global Admin Terminal</h2>
-                <p style="color: var(--text-muted);">Sleaty8 Management & Registry Analytics Control</p>
+                <p style="color: var(--text-muted);">Sleaty8 Management & Master Account Matrix Controls</p>
             </div>
             <button class="btn btn-sm btn-danger external-logout-btn">Logout Admin</button>
         </div>
 
-        <!-- System Stats Banners -->
         <div class="stat-banner">
             <div class="stat-card">
                 <div class="stat-label">Total Registered Accounts</div>
@@ -435,16 +511,14 @@
             </div>
         </div>
 
-        <!-- Administrative Context Switching Layout Tabs -->
         <div class="admin-tabs" style="width:100%;">
             <button class="admin-tab-btn active-tab" id="tab-btn-accounts">All Platform Accounts</button>
             <button class="admin-tab-btn" id="tab-btn-pending">Teacher Access Requests</button>
         </div>
 
-        <!-- PANEL: ALL ACCOUNTS MATRIX VIEW -->
         <div class="content-card admin-panel active-panel" id="panel-admin-accounts" style="width:100%;">
             <h3>Global Account Registry Master File</h3>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Real-time tracking of active instances, handles, roles, and structural parameters.</p>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Real-time tracking of active instances, handles, roles, and structural configuration data profiles.</p>
             <div style="overflow-x: auto;">
                 <table class="admin-table">
                     <thead>
@@ -456,16 +530,16 @@
                             <th>Workspace Location</th>
                             <th>Status Matrix</th>
                             <th>Last Interaction Log</th>
+                            <th style="text-align: right;">Administrative Override</th>
                         </tr>
                     </thead>
                     <tbody id="admin-account-rows">
-                        <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Compiling live runtime files...</td></tr>
+                        <tr><td colspan="8" style="text-align:center; color:var(--text-muted);">Compiling live runtime files...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- PANEL: PENDING TEACHERS INBOUND -->
         <div class="content-card admin-panel" id="panel-admin-pending" style="width:100%;">
             <h3>Pending School Verification Nodes</h3>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Approve institutional alignment profiles to authorize teacher workspace generation control keys.</p>
@@ -490,8 +564,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Global Configuration Coordinates Array
         const firebaseConfig = {
             apiKey: "AIzaSyC61lZSizzXl4pFiCWFfnpLufvmzJWUICY",
             authDomain: "studysnap-8f5d6.firebaseapp.com",
@@ -519,12 +594,13 @@
         let globalChartInstance = null;
         let assessmentChartInstance = null;
 
+        // Auto-Seed Master Administrative Verification Node Entry Points
         async function autoSeedAdminAccount() {
             try { await createUserWithEmailAndPassword(auth, "sleaty8@gmail.com", "Sleaty8admin"); } catch (e) {}
         }
         autoSeedAdminAccount();
 
-        // Heartbeat metric: logs user actions to record interaction timelines dynamically
+        // Heartbeat metric updates user presence vectors inside real-time profiles table logs
         async function reportHeartbeatTick(userUid) {
             if (!userUid || userUid === 'sleaty8@gmail.com') return;
             try {
@@ -534,6 +610,7 @@
             } catch(e) { }
         }
 
+        // Global Security State Changes Evaluators Matrix Loop Array
         onAuthStateChanged(auth, async (user) => {
             authInitializing = false;
             if (user) {
@@ -849,7 +926,9 @@
                 C: document.getElementById('opt-c').value,
                 D: document.getElementById('opt-d').value,
             };
-            const correctOption = document.getElementById('assign-correct-option').value;
+            
+            // Overhauled solution matrix value capture mapping directly from radio state checks
+            const correctOption = document.querySelector('input[name="blooket-correct"]:checked').value;
 
             const antiCheat = {
                 blurTracking: document.getElementById('chk-detect').checked,
@@ -948,7 +1027,7 @@
         document.getElementById('game-btn-C').addEventListener('click', () => registerOptionSelectionEvent('C'));
         document.getElementById('game-btn-D').addEventListener('click', () => registerOptionSelectionEvent('D'));
 
-        // --- EXTENDED ADMINISTRATIVE PLATFORM ENGINE ---
+        // --- EXTENDED ADMINISTRATIVE PLATFORM ENGINE ENGINE ---
         async function renderAdminTerminal() {
             // Load Pending Schools Requests
             const requestContainer = document.getElementById('admin-request-rows');
@@ -977,7 +1056,7 @@
                 }
             }
 
-            // Load Master Analytics Account Matrix File
+            // Load Master Analytics Account Matrix File with Destructive Action Loops
             const accountContainer = document.getElementById('admin-account-rows');
             const qAllUsers = query(collection(db, "users"));
             const allUsersSnapshot = await getDocs(qAllUsers);
@@ -988,7 +1067,7 @@
                 accountContainer.innerHTML = '';
                 
                 if (allUsersSnapshot.empty) {
-                    accountContainer.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No profiles located inside Firestore instance.</td></tr>`;
+                    accountContainer.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No profiles located inside Firestore instance.</td></tr>`;
                 } else {
                     allUsersSnapshot.forEach((docRecord) => {
                         const userProfile = docRecord.data();
@@ -1013,6 +1092,7 @@
                         const roleColorClass = userProfile.role === 'Teacher' ? 'badge-info' : 'badge-success';
 
                         const row = document.createElement('tr');
+                        row.id = `user-row-${docRecord.id}`;
                         row.innerHTML = `
                             <td><strong>${userProfile.name || 'Anonymous User'}</strong></td>
                             <td style="color:var(--accent);">@${userProfile.username || 'unknown'}</td>
@@ -1021,8 +1101,20 @@
                             <td>${userProfile.school || 'Direct Access Space'}</td>
                             <td>${activeBadge}</td>
                             <td style="color:var(--text-muted); font-size:0.8rem;">${timeString}</td>
+                            <td style="text-align: right;">
+                                <button class="btn btn-sm btn-danger action-terminate-user" data-uid="${docRecord.id}" data-email="${userProfile.email}" style="margin:0; padding: 0.4rem 0.8rem; font-size: 0.75rem;">Perm Delete</button>
+                            </td>
                         `;
                         accountContainer.appendChild(row);
+                    });
+
+                    // Assign Event Listeners for Permanent Account Purges natively 
+                    document.querySelectorAll('.action-terminate-user').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const targetUid = e.target.getAttribute('data-uid');
+                            const targetEmail = e.target.getAttribute('data-email');
+                            await executePermanentAccountPurge(targetUid, targetEmail);
+                        });
                     });
                 }
 
@@ -1031,6 +1123,25 @@
                 document.getElementById('stat-total-teachers').innerText = teacherCount;
                 document.getElementById('stat-total-students').innerText = studentCount;
                 document.getElementById('stat-total-pending').innerText = pendingCount;
+            }
+        }
+
+        // Permanent account deletion engine: Purges the Firestore identity footprint permanently
+        async function executePermanentAccountPurge(uid, email) {
+            const verificationPrompt = confirm(`⚠️ CRITICAL ADMINISTRATIVE SECURITY OVERRIDE:\n\nYou are attempting to permanently purge the core database profile for:\n[ User Link: ${email} ] (UID: ${uid}).\n\nThis will completely erase their active configurations, enrolled classroom rosters, and academic metrics across QuestGrade.\n\nAre you sure you want to proceed? This process cannot be undone.`);
+            
+            if (!verificationPrompt) return;
+
+            try {
+                // Delete user file node from cloud firestore structure 
+                await deleteDoc(doc(db, "users", uid));
+                
+                alert(`SUCCESS: Identity profile and asset keys for ${email} have been permanently removed from the system registry.`);
+                
+                // Refresh local dashboard variables smoothly
+                await renderAdminTerminal();
+            } catch (err) {
+                alert(`Administrative Override Fault: ${err.message}`);
             }
         }
 
